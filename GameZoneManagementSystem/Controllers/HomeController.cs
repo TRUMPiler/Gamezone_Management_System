@@ -21,15 +21,15 @@ namespace GameZoneManagementSystem.Controllers
         public bool isLoggedIn()
         {
           
-            if(HttpContext.Session.GetInt32("Login")>0&&(string.IsNullOrEmpty(HttpContext.Session.GetString("Role"))))
-            {
-                return true;
-            }
-            else
-            {
-                HttpContext.Session.SetInt32("Login", 0);
+            //if(HttpContext.Session.GetInt32("Login")>0&&(string.IsNullOrEmpty(HttpContext.Session.GetString("Role"))))
+            //{
+            //    return true;
+            //}
+            //else
+            //{
+            //    HttpContext.Session.SetInt32("Login", 0);
 
-            }
+            //}
             return false;
         }
         public IActionResult Index()
