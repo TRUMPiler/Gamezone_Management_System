@@ -2,13 +2,14 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using GameZoneManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Session;
-
+using Microsoft.AspNetCore.Http;
 namespace GameZoneManagementSystem.Controllers
 {
     public class HomeController : Controller
     {
-        
+        string SessionName = "Login";
+        string SessionEmail = "Email";
+        string SessionRole = "Role";
         string script="";
         string con = "Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;";
         private readonly ILogger<HomeController> _logger;
@@ -20,21 +21,39 @@ namespace GameZoneManagementSystem.Controllers
         
         public bool isLoggedIn()
         {
-          
-            //if(HttpContext.Session.GetInt32("Login")>0&&(string.IsNullOrEmpty(HttpContext.Session.GetString("Role"))))
+
+            //if (HttpContext.Session == null)
             //{
+            //    Console.WriteLine("Session object is null");
             //    return true;
             //}
-            //else
-            //{
-            //    HttpContext.Session.SetInt32("Login", 0);
 
+            //if (!HttpContext.Session.Keys.Contains(SessionName))
+            //{
+            //    Console.WriteLine($"Session key '{SessionName}' does not exist");
+            //    return true;
+            //}
+
+            //int? sessionValue = HttpContext.Session.GetInt32(SessionName);
+            //if (!sessionValue.HasValue)
+            //{
+            //    Console.WriteLine("Session value is null");
+            //    return true;
             //}
             return false;
+
         }
         public IActionResult Index()
         {
-            return View();
+            if(HttpContext.Session.GetInt32(SessionName)!=null)
+            {
+                return RedirectToAction("Index","Customer");
+            }
+            else
+            {
+                return View();
+            }
+            
         }
         public String ReturnView(string role)
         {
@@ -101,18 +120,18 @@ namespace GameZoneManagementSystem.Controllers
             HashPasswordController hp = new HashPasswordController();
             if (!string.IsNullOrEmpty(storedHashedPassword) && hp.VerifyPassword(user.Password, storedHashedPassword))
             {
-                HttpContext.Session.SetInt32("Login", 1);
-                HttpContext.Session.SetString("Email", user.Email.ToString());
-                HttpContext.Session.SetString("Role", user.Role.ToString());
+                HttpContext.Session.SetInt32(SessionName, 1);
+                HttpContext.Session.SetString(SessionEmail, user.Email.ToString());
+                HttpContext.Session.SetString(SessionRole, user.Role.ToString());
 
-                if (user.Role=="c")
-                {
+                //if (user.Role=="c")
+                //{
                     
-                    user.Role = "customer";
-                    script = $"<script>alert('Login successful! Welcome {user.Role}');window.location='/Customer/Index';</script>";
-                    return Content(script, "text/html");
-                }
-                script = $"<script>alert('Login successful! Welcome {user.Role}');window.location='/Customer/Index';</script>";
+                //    user.Role = "customer";
+                //    script = $"<script>alert('Login successful! Welcome {user.Role}');window.location='/Customer/Index';</script>";
+                //    return Content(script, "text/html");
+                //}
+                script = $"<script>alert('Login successful! Welcome {user.Role}');window.location='/Home/Index';</script>";
                 return Content(script, "text/html");
             }
             else
