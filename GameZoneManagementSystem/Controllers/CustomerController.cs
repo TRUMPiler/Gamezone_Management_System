@@ -13,15 +13,15 @@ namespace GameZoneManagementSystem.Controllers
         }
         public IActionResult Register()
         {
-            //HomeController home = new HomeController();
-            //if(home.isLoggedIn())
-            //{
-            //    return RedirectToAction("Index");
-            //}
-            //else
-            //{
+            HomeController home = new HomeController();
+            if(home.isLoggedIn())
+            {
+                return RedirectToAction("Index");
+            }
+            else
+            {
                 return View();
-            //}
+            }
         }
         public IActionResult Logout()
         {
