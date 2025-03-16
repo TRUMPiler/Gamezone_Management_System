@@ -1,11 +1,12 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-"@{
+@{
     ViewData["Title"] = "Login";
 }
 @* <link rel="stylesheet" href="~/css/register.css"/> *@
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <section class="intro-section"></section>
       <section class="featured-section">
    
@@ -13,7 +14,7 @@
     <div class="featured-box" style="background-image: url('@Url.Content("~/img/outside/Registeration-bg.jpg")'); background-size: cover; background-position: center; padding: 20px; border-radius: 10px;">
 
         <div class="form-container">        
-        <form method="post" action="register" class="">
+        <form method="post" action="register" class="test">
 
             <div class="form-group">
                     <h2 style="color: white; text-align: center;">User Registration</h2>
@@ -65,6 +66,92 @@
                 <button type="submit">Register</button>
             </div>
         </form>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+            <script src=""></script>
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js">
+                $(document).ready(function () {
+                    // Initialize form validation
+                    $('.test').validate({
+                        rules: {
+                            FirstName: {
+                                required: true,
+                                maxlength: 15
+                            },
+                            SecondName: {
+                                maxlength: 15
+                            },
+                            LastName: {
+                                maxlength: 15
+                            },
+                            Dob: {
+                                required: true,
+                                date: true
+                            },
+                            Email: {
+                                required: true,
+                                email: true
+                            },
+                            Password: {
+                                required: true,
+                                minlength: 6
+                            },
+                            Phone: {
+                                required: true,
+                                digits: true,
+                                minlength: 10,
+                                maxlength: 10
+                            },
+                            Gender: {
+                                required: true
+                            }
+                        },
+                        messages: {
+                            FirstName: {
+                                required: "Please enter your first name",
+                                maxlength: "First name cannot exceed 15 characters"
+                            },
+                            SecondName: {
+                                maxlength: "Second name cannot exceed 15 characters"
+                            },
+                            LastName: {
+                                maxlength: "Last name cannot exceed 15 characters"
+                            },
+                            Dob: {
+                                required: "Please enter your date of birth",
+                                date: "Enter a valid date"
+                            },
+                            Email: {
+                                required: "Please enter your email",
+                                email: "Enter a valid email address"
+                            },
+                            Password: {
+                                required: "Please enter a password",
+                                minlength: "Password must be at least 6 characters long"
+                            },
+                            Phone: {
+                                required: "Please enter your phone number",
+                                digits: "Phone number must contain only numbers",
+                                minlength: "Phone number must be 10 digits",
+                                maxlength: "Phone number must be 10 digits"
+                            },
+                            Gender: {
+                                required: "Please select your gender"
+                            }
+                        },
+                        errorPlacement: function (error, element) {
+                            // Append error messages after the form field
+                            error.insertAfter(element);
+                        },
+                        submitHandler: function (form) {
+                            // Execute form submission
+                            form.submit();
+                        }
+                    });
+                });
+            </script>
+
+
     
      </div>
     </div>
