@@ -1,16 +1,122 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Data.SqlClient;
+using Razorpay.Api;
+using Org.BouncyCastle.Utilities;
 
 namespace GameZoneManagementSystem.Controllers
 {
     public class CreditController : Controller
     {
+        private readonly string _key = "rzp_test_YpWMzLzMbgtqFk"; // Replace with your Razorpay key
+        private readonly string _secret = "lPo9E0pjKqPoCuJqoTDX7yWs"; // Replace with your Razorpay secret
+        private readonly SqlConnection _con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
+
         public IActionResult Index()
         {
             return View();
         }
-        //public string Credit_info(string name) {
-        //    {
 
-        //    }
+        public IActionResult PaymentPage()
+        {
+            return View();
+        }
+
+        public IActionResult CreateOrder(decimal amount = 1000)
+        {
+            // Initialize Razorpay client
+            var client = new RazorpayClient(_key, _secret);
+
+            // Create Razorpay order
+            var options = new Dictionary<string, object>
+            {
+                { "amount", (amount * 100) }, // Convert amount to paise
+                { "currency", "INR" },
+                { "receipt", "receipt#1" },
+                { "payment_capture", 1 }
+            };
+
+            var order = client.Order.Create(options);
+            ViewBag.OrderId = order["id"];
+
+            return RedirectToAction("PaymentPage");
+        }
+
+        [HttpPost]
+        public IActionResult PaymentSuccessful([FromBody] RazorpayPaymentDetails paymentDetails)
+        {
+            try
+            {
+                // Extract payment ID and other details
+                string paymentId = paymentDetails.razorpay_payment_id;
+                int userId = 1; // Replace with your actual logic for user ID
+                decimal paymentAmount = 500; // Replace with the actual payment amount logic
+
+                // Insert payment details into the database
+                using (SqlConnection con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;"))
+                {
+                    con.Open();
+
+                    // Check if user already has a credit entry
+                    using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM tbl_credit WHERE userid = @userid", con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@userid", userId);
+                        int count = (int)checkCmd.ExecuteScalar();
+
+                        if (count == 0)
+                        {
+                            // Insert a new credit entry if none exists
+                            using (SqlCommand insertCreditCmd = new SqlCommand("INSERT INTO tbl_credit (Credits, userid) VALUES (@credits, @userid)", con))
+                            {
+                                if(HttpContext.Session.GetString("Userid")!=null)
+                                {
+                                    string v = HttpContext.Session.GetString("Userid").ToString();
+                                    userId = Int32.Parse(v);
+                                }
+                                else
+                                {
+                                    userId = 6;
+                                }
+                                insertCreditCmd.Parameters.AddWithValue("@credits", 0);
+                                insertCreditCmd.Parameters.AddWithValue("@userid",userId);
+                                insertCreditCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    // Update the credits for the user
+                    using (SqlCommand updateCreditCmd = new SqlCommand("UPDATE tbl_credit SET Credits = Credits + @credits WHERE userid = @userid", con))
+                    {
+                        updateCreditCmd.Parameters.AddWithValue("@credits", paymentAmount);
+                        updateCreditCmd.Parameters.AddWithValue("@userid", userId);
+                        updateCreditCmd.ExecuteNonQuery();
+                    }
+
+                    // Insert payment details into tbl_payment
+                    using (SqlCommand insertPaymentCmd = new SqlCommand(
+                        "INSERT INTO tbl_payment (userid, Transcationid, Type) VALUES (@userid, @paymentId, @amount)", con))
+                    {
+                        insertPaymentCmd.Parameters.AddWithValue("@userid", userId);
+                        insertPaymentCmd.Parameters.AddWithValue("@paymentId", paymentId);
+                        insertPaymentCmd.Parameters.AddWithValue("@amount", 1);
+                        
+                        insertPaymentCmd.ExecuteNonQuery();
+                    }
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+        public class RazorpayPaymentDetails
+        {
+            public string razorpay_payment_id { get; set; }
+            public string razorpay_order_id { get; set; }
+            public string razorpay_signature { get; set; }
+        }
     }
 }

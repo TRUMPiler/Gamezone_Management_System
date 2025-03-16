@@ -4,7 +4,6 @@ using System.Data.SqlClient;
 using GameZoneManagementSystem.Controllers;
 namespace GameZoneManagementSystem.Controllers
 {
-    
     public class CustomerController : Controller
     {
         SqlConnection con=new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");

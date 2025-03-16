@@ -48,6 +48,7 @@ namespace GameZoneManagementSystem.Controllers
         [HttpPost]
         public IActionResult Login(User user)
         {
+
             if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
             {
                 TempData["Error"] = "Email and Password are required!";
@@ -57,18 +58,23 @@ namespace GameZoneManagementSystem.Controllers
             string storedHashedPassword = null;
             using (SqlConnection connection = new SqlConnection(con))
             {
+                
                 connection.Open();
-                string query = "SELECT Password, Role FROM Tbl_User WHERE Email = @Email AND Status=1";
+                string query = "SELECT id,Password, Role FROM Tbl_User WHERE Email = @Email AND Status=@Status";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Email", user.Email);
+                    command.Parameters.AddWithValue("@Status", true);
+
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         if (reader.Read())
                         {
+                            user.id =(int) reader["id"];
                             storedHashedPassword = reader["Password"].ToString();
                             user.Role = reader["Role"].ToString();
                         }
+
                     }
                 }
             }
@@ -79,12 +85,13 @@ namespace GameZoneManagementSystem.Controllers
                 HttpContext.Session.SetInt32("Login", 1);
                 HttpContext.Session.SetString("Email", user.Email);
                 HttpContext.Session.SetString("Role", user.Role);
+                HttpContext.Session.SetString("Userid", user.id.ToString());
                 return RedirectToAction("Index", "Customer");
             }
             else
             {
-                TempData["Error"] = "Invalid credentials. Please try again.";
-                return RedirectToAction("Login");
+                string script = "<script>alert('Hashed Password Not Found');window.location='/Home/Login'</script>";
+                return Content(script, "text/html");
             }
         }
 

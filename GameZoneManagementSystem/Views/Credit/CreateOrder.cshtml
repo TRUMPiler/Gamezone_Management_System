@@ -1,0 +1,28 @@
+﻿@model System.Decimal;
+@{
+    Layout = null;
+    ViewBag.Title = "Make a Payment";
+}
+@* <section class="intro-section"></section> *@
+@* <h2>Make a Payment</h2> *@
+@* <form action="PaymentSuccess" method="POST"> *@
+@*     <script src="https://checkout.razorpay.com/v1/checkout.js" *@
+@*             data-key="@ViewBag.Key" *@
+@*             data-amount="@ViewBag.Amount * 100" *@
+@*             data-currency="INR" *@
+@*             data-order_id="@ViewBag.OrderId" *@
+@*             data-buttontext="Pay with Razorpay" *@
+@*             data-name="Game Zone" *@
+@*             data-description="Add Credits" *@
+@*             data-image="/images/logo.png" *@
+@*             data-prefill.name="" *@
+@*             data-prefill.email="" *@
+@*             data-theme.color="#F37254"> *@
+@*     </script> *@
+@*     <input type="hidden" name="orderId" value="@ViewBag.OrderId" /> *@
+@* </form> *@
+<div class="text-center mt-5">
+    <h3>Add Credits</h3>
+    <p>Click the button below to proceed with payment.</p>
+    <a href="/Credit/PaymentPage" class="btn btn-primary btn-lg">Make a Payment</a>
+</div>

@@ -3,8 +3,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Full-screen height */
-    background-image: url('/img/outside/OIL.jpg'); /* Make sure the path is correct */
+    /*height: 100vh;*/ /* Full-screen height */
+/*    background-image: url('/img/outside/OIL.jpg');  Make sure the path is correct */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -24,7 +24,7 @@
 
 /* Inputs and Labels */
 .input-container {
-    margin-bottom: 15px;
+    margin-bottom: 0px;
     display: flex;
     flex-direction: column;
 }
@@ -34,3 +34,90 @@ input {
     border-radius: 5px;
     border: none;
 }
+
+.featured-section {
+    width: 100vw; /* Full width of the screen */
+    height: 100vh; /* Full height of the screen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: black; /* Match the background color */
+    overflow: hidden; /* Prevents scrollbars */
+}
+
+.featured-box {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 10px;
+}
+/*.form-group {
+    display: flex;
+    align-items: center;*/ /* Align label and input vertically */
+    /*justify-content: space-between;*/ /* Space out label and input */
+    /*margin-bottom: 10px;*/ /* Space between form fields */
+/*}
+
+    .form-group label {
+        width: 30%;*/ /* Adjust label width */
+        /*font-size: 14px;
+        color: white;
+        text-align: right;*/ /* Align text to the right */
+        /*padding-right: 10px;*/ /* Space between label and input */
+    /*}
+
+    .form-group input {
+        width: 65%;*/ /* Adjust input width to fit beside the label */
+        /*padding: 5px;
+        font-size: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.2);*/ /* Light transparent background */
+        /*color: white;
+        outline: none;
+    }*/
+
+
+.form-group input {
+    width: 100%;
+    padding: 5px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: rgb(255, 255, 255);
+    color: black;
+    outline: none;
+}
+
+form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    }
+
+    .form-group button {
+        background-color: #d833ee; /* Choose a bright color */
+    color: white; /* Text color */
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block; /* Ensure it's visible */
+    width: 100%; /* Adjust width */
+    text-align: center;
+    margin-top: 10px;
+}
+
+        .form-group button:hover {
+            background-color: #1822dd; /* Darker shade on hover */
+        }
+
+

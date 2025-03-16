@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Payment Page";
+    Layout = null;
+}
+
+<h1>Complete Your Payment</h1>
+
+<div>
+    <p>Proceed to complete the payment. Once successful, the payment ID will be captured and sent to the server.</p>
+</div>
+
+<!-- Placeholder for Razorpay Payment Button -->
+<div id="payment-button-container">
+    <button id="rzp-button">Pay Now</button>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    // Razorpay options
+    const options = {
+        key: "rzp_test_YpWMzLzMbgtqFk", // Replace with your Razorpay Key
+        amount: "50000", // Amount in paise (example: 10 INR)
+        currency: "INR",
+        name: "GameZone",
+        description: "Add credits to your account",
+        order_id: "@ViewBag.OrderId", // Razorpay order ID passed from the controller
+        handler: function (response) {
+            // Payment successful - send payment ID to the server
+            const paymentDetails = {
+                razorpay_payment_id: response.razorpay_payment_id
+            };
+
+            // Send payment ID to the server
+            fetch("/Credit/PaymentSuccessful", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(paymentDetails)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Payment successful! Payment ID has been saved.");
+                        window.location='/Customer/Index';
+                    } else {
+                        alert("Payment failed: " + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while sending payment details to the server.");
+                });
+        },
+        theme: {
+            color: "#F37254" // Customize Razorpay button color
+        }
+    };
+
+    // Initialize Razorpay Checkout
+    const rzp = new Razorpay(options);
+
+    // Attach event listener to button
+    document.getElementById("rzp-button").addEventListener("click", function (e) {
+        rzp.open();
+        e.preventDefault();
+    });
+</script>

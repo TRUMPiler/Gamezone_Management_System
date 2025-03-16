@@ -1,21 +1,24 @@
 ﻿@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
-@{
+"@{
     ViewData["Title"] = "Login";
 }
 @* <link rel="stylesheet" href="~/css/register.css"/> *@
 
     <section class="intro-section"></section>
       <section class="featured-section">
-    @* <div class="featured-bg set-bg" data-setbg="@Url.Content("~/img/outside/Registeration-bg.jpg")"></div> *@
-    <div class="featured-box set-bg" data-setbg="@Url.Content("~/img/outside/Registeration-bg.jpg")">
-        <h2>User Registration</h2>
-        <div class="form-container">
-    
-        
+   
+     @* <div class="hero-item set-bg d-flex align-items-center justify-content-center text-center" data-setbg="@Url.Content("~/img/outside/Registeration-bg.jpg")"></div>  *@
+    <div class="featured-box" style="background-image: url('@Url.Content("~/img/outside/Registeration-bg.jpg")'); background-size: cover; background-position: center; padding: 20px; border-radius: 10px;">
+
+        <div class="form-container">        
         <form method="post" action="register" class="">
-                    
+
+            <div class="form-group">
+                    <h2 style="color: white; text-align: center;">User Registration</h2>
+            </div>
+
             <div class="form-group">
                 <label for="firstName">First Name:</label>
                 <input type="text" id="firstName" name="FirstName" maxlength="15" required>
