@@ -15,5 +15,6 @@
         public string? Phone { get; set; }
         public string? Role { get; set; }
         public char Gender { get; set; }
+        public bool Status{ get; set; }
     }
 }

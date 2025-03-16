@@ -1,0 +1,24 @@
+﻿@{
+    ViewBag.Title = "Verify OTP";
+}
+
+<h2>🔐 Verify OTP</h2>
+
+@if (ViewBag.Message != null)
+{
+    <p style="color:red;">@ViewBag.Message</p>
+}
+
+<form method="post" action="/Email/VerifyOTP">
+    <label>Enter OTP:</label>
+    <input type="text" name="otp" required />
+    <button type="submit">Verify OTP</button>
+</form>
+
+@if (ViewBag.ShowResendButton != null && (bool)ViewBag.ShowResendButton)
+{
+    <br />
+    <form method="post" action="/Email/ResendOTP">
+        <button type="submit" style="background-color: orange;">Resend OTP</button>
+    </form>
+}

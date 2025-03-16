@@ -1,0 +1,41 @@
+﻿.form-group button {
+    background-color: #0c062e;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .form-group button:hover {
+        background-color: #140a46;
+    }
+
+    .form-group button:active {
+        background-color: #08031a;
+    }
+body {
+    background-image: url('/img/outside/Registeration-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 1vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-box {
+  
+    text-align: center;
+   
+}
+.form-box {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+}

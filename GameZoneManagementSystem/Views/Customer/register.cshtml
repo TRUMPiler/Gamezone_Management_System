@@ -2,81 +2,20 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    Layout = null;
+    ViewData["Title"] = "Login";
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
+@* <link rel="stylesheet" href="~/css/register.css"/> *@
 
-        .form-container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-            .form-container h2 {
-                text-align: center;
-                margin-bottom: 20px;
-            }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: bold;
-            }
-
-            .form-group input,
-            .form-group select {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-            }
-
-                .form-group input[type="radio"] {
-                    width: auto;
-                }
-
-            .form-group .radio-label {
-                margin-right: 10px;
-            }
-
-            .form-group button {
-                width: 100%;
-                padding: 10px;
-                background-color: #007BFF;
-                color: #fff;
-                border: none;
-                border-radius: 5px;
-                font-size: 16px;
-                cursor: pointer;
-            }
-
-                .form-group button:hover {
-                    background-color: #0056b3;
-                }
-    </style>
-</head>
-<body>
-    <div class="form-container">
+    <section class="intro-section"></section>
+      <section class="featured-section">
+    @* <div class="featured-bg set-bg" data-setbg="@Url.Content("~/img/outside/Registeration-bg.jpg")"></div> *@
+    <div class="featured-box set-bg" data-setbg="@Url.Content("~/img/outside/Registeration-bg.jpg")">
         <h2>User Registration</h2>
-        <form method="post" action="register">
+        <div class="form-container">
+    
+        
+        <form method="post" action="register" class="">
+                    
             <div class="form-group">
                 <label for="firstName">First Name:</label>
                 <input type="text" id="firstName" name="FirstName" maxlength="15" required>
@@ -107,17 +46,23 @@
             </div>
             <div class="form-group">
                 <label>Gender:</label>
-                <input type="radio" id="male" name="Gender" value="M" required checked>
-                <label class="radio-label" for="male">Male</label>
-                <input type="radio" id="female" name="Gender" value="F" required>
-                <label class="radio-label" for="female">Female</label>
-                <input type="radio" id="other" name="Gender" value="O" required>
-                <label class="radio-label" for="other">Other</label>
+                <label class="radio-label" for="male">Male
+                            <input type="radio" id="male" name="Gender" value="m" required>
+                        </label>
+                
+                <label class="radio-label" for="female">Female
+                            <input type="radio" id="female" name="Gender" value="F" required>
+                </label>
+                
+                <label class="radio-label" for="other">Other
+                            <input type="radio" id="other" name="Gender" value="O" required>
+                </label>
             </div>
             <div class="form-group">
                 <button type="submit">Register</button>
             </div>
         </form>
+    
+     </div>
     </div>
-</body>
-</html>
+</section>

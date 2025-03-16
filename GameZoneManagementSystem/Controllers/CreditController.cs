@@ -8,9 +8,9 @@ namespace GameZoneManagementSystem.Controllers
         {
             return View();
         }
-        public string Credit_info(string name) {
-            {
+        //public string Credit_info(string name) {
+        //    {
 
-            }
+        //    }
     }
 }

@@ -1,0 +1,36 @@
+﻿/* Background Image for Full Section */
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full-screen height */
+    background-image: url('/img/outside/OIL.jpg'); /* Make sure the path is correct */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    color:white;
+    
+}
+
+/* Form Styling (without background) */
+.form-box {
+    padding: 20px;
+    border-radius: 10px;
+    color: white; /* White text */
+    text-align: center;
+    background: none; /* Removes any unwanted background */
+}
+
+/* Inputs and Labels */
+.input-container {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+input {
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+}
