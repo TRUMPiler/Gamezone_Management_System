@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using Razorpay.Api;
 using Org.BouncyCastle.Utilities;
+using GameZoneManagementSystem.Models;
 
 namespace GameZoneManagementSystem.Controllers
 {
@@ -18,7 +19,13 @@ namespace GameZoneManagementSystem.Controllers
 
         public IActionResult PaymentPage()
         {
-            return View();
+            if(HttpContext.Session.GetString("Userid")==null)
+            {
+                string script = "<script>alert('Ohno you need to Login First');window.location='/Home/Login'</script>";
+                return Content(script, "text/html");
+            }
+            String userid=HttpContext.Session.GetString("Userid");
+            return View(FetchDetails(userid));
         }
 
         public IActionResult CreateOrder(decimal amount = 1000)
@@ -57,7 +64,7 @@ namespace GameZoneManagementSystem.Controllers
                     con.Open();
 
                     // Check if user already has a credit entry
-                    using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM tbl_credit WHERE userid = @userid", con))
+                    using (SqlCommand checkCmd = new SqlCommand("SELECT count(id) FROM tbl_credit WHERE userid = @userid", con))
                     {
                         checkCmd.Parameters.AddWithValue("@userid", userId);
                         int count = (int)checkCmd.ExecuteScalar();
@@ -111,7 +118,25 @@ namespace GameZoneManagementSystem.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+        public Credit FetchDetails(String userid="1")
+        {
+            Credit g = new Credit();
+            SqlCommand com = new SqlCommand("Select * from tbl_credit where userid=@userid",_con);
+            com.Parameters.AddWithValue("@userid",userid);
+            _con.Open();
+            using (SqlDataReader r= com.ExecuteReader())
+            {
+                if (r.Read())
+                {
+                    g.userid = (int)r["userid"];
+                    g.credits = r["Credits"] != DBNull.Value ? new System.Data.SqlTypes.SqlMoney(Convert.ToDecimal(r["Credits"])) : System.Data.SqlTypes.SqlMoney.Null;
 
+                    g.id = (int)r["id"];
+                }
+            }
+            _con.Close();
+            return g;
+        }
         public class RazorpayPaymentDetails
         {
             public string razorpay_payment_id { get; set; }

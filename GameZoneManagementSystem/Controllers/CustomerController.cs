@@ -87,6 +87,7 @@ namespace GameZoneManagementSystem.Controllers
             return cmd.ExecuteNonQuery();
             
         }
+
         [HttpPost]
         public IActionResult Register(User user)
         {

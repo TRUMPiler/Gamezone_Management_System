@@ -2,7 +2,15 @@
     ViewData["Title"] = "Payment Page";
     Layout = null;
 }
-
+@model GameZoneManagementSystem.Models.Credit;
+<h1>Current Balance of you're Account is:</h1><h5>@if (Model.credits.IsNull) {
+        <p>0</p>
+    }
+    else
+    {
+        @Model.credits;
+    }
+</h5>
 <h1>Complete Your Payment</h1>
 
 <div>
