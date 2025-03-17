@@ -1,158 +1,177 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
     ViewData["Title"] = "Login";
 }
-@* <link rel="stylesheet" href="~/css/register.css"/> *@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js" integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <section class="intro-section"></section>
-      <section class="featured-section">
-   
-     @* <div class="hero-item set-bg d-flex align-items-center justify-content-center text-center" data-setbg="@Url.Content("~/img/outside/Registeration-bg.jpg")"></div>  *@
+
+<!-- Include jQuery and Validation Scripts -->
+
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.19.5/jquery.validate.min.js"></script>
+
+<style>
+    .error-message {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+        display: block;
+    }
+</style>
+
+
+<section class="intro-section"></section>
+<section class="featured-section">
     <div class="featured-box" style="background-image: url('@Url.Content("~/img/outside/Registeration-bg.jpg")'); background-size: cover; background-position: center; padding: 20px; border-radius: 10px;">
-
-        <div class="form-container">        
-        <form method="post" action="register" class="test">
-
-            <div class="form-group">
+        <div class="form-container">
+            <form method="post" action="register" id="registrationForm" novalidate>
+                <div class="form-group">
                     <h2 style="color: white; text-align: center;">User Registration</h2>
-            </div>
+                </div>
 
-            <div class="form-group">
-                <label for="firstName">First Name:</label>
-                <input type="text" id="firstName" name="FirstName" maxlength="15" required>
-            </div>
-            <div class="form-group">
-                <label for="secondName">Second Name:</label>
-                <input type="text" id="secondName" name="SecondName" maxlength="15">
-            </div>
-            <div class="form-group">
-                <label for="lastName">Last Name:</label>
-                <input type="text" id="lastName" name="LastName" maxlength="15">
-            </div>
-            <div class="form-group">
-                <label for="dob">Date of Birth:</label>
-                <input type="date" id="dob" name="Dob" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="Password" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="Email" required>
-            </div>
-            <div class="form-group">
-                <label for="phone">Phone:</label>
-                <input type="tel" id="phone" name="Phone" maxlength="10" pattern="[0-9]{10}">
-            </div>
-            <div class="form-group">
-                <label>Gender:</label>
-                <label class="radio-label" for="male">Male
-                            <input type="radio" id="male" name="Gender" value="m" required>
-                        </label>
-                
-                <label class="radio-label" for="female">Female
-                            <input type="radio" id="female" name="Gender" value="F" required>
-                </label>
-                
-                <label class="radio-label" for="other">Other
-                            <input type="radio" id="other" name="Gender" value="O" required>
-                </label>
-            </div>
-            <div class="form-group">
-                <button type="submit">Register</button>
-            </div>
-        </form>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-            <script src=""></script>
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" id="firstName" name="FirstName" maxlength="15" required>
+                    <small class="error-message" id="firstNameError"></small>
+                </div>
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js">
-                $(document).ready(function () {
-                    // Initialize form validation
-                    $('.test').validate({
-                        rules: {
-                            FirstName: {
-                                required: true,
-                                maxlength: 15
-                            },
-                            SecondName: {
-                                maxlength: 15
-                            },
-                            LastName: {
-                                maxlength: 15
-                            },
-                            Dob: {
-                                required: true,
-                                date: true
-                            },
-                            Email: {
-                                required: true,
-                                email: true
-                            },
-                            Password: {
-                                required: true,
-                                minlength: 6
-                            },
-                            Phone: {
-                                required: true,
-                                digits: true,
-                                minlength: 10,
-                                maxlength: 10
-                            },
-                            Gender: {
-                                required: true
-                            }
-                        },
-                        messages: {
-                            FirstName: {
-                                required: "Please enter your first name",
-                                maxlength: "First name cannot exceed 15 characters"
-                            },
-                            SecondName: {
-                                maxlength: "Second name cannot exceed 15 characters"
-                            },
-                            LastName: {
-                                maxlength: "Last name cannot exceed 15 characters"
-                            },
-                            Dob: {
-                                required: "Please enter your date of birth",
-                                date: "Enter a valid date"
-                            },
-                            Email: {
-                                required: "Please enter your email",
-                                email: "Enter a valid email address"
-                            },
-                            Password: {
-                                required: "Please enter a password",
-                                minlength: "Password must be at least 6 characters long"
-                            },
-                            Phone: {
-                                required: "Please enter your phone number",
-                                digits: "Phone number must contain only numbers",
-                                minlength: "Phone number must be 10 digits",
-                                maxlength: "Phone number must be 10 digits"
-                            },
-                            Gender: {
-                                required: "Please select your gender"
-                            }
-                        },
-                        errorPlacement: function (error, element) {
-                            // Append error messages after the form field
-                            error.insertAfter(element);
-                        },
-                        submitHandler: function (form) {
-                            // Execute form submission
-                            form.submit();
-                        }
-                    });
-                });
-            </script>
+                <div class="form-group">
+                    <label for="secondName">Second Name:</label>
+                    <input type="text" id="SecondName" name="SecondName" maxlength="15">
+                    <small class="error-message" id="SecondNameError"></small>
+                </div>
 
+                <div class="form-group">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" id="LastName" name="LastName" maxlength="15">
+                    <small class="error-message" id="LastNameError"></small>
+                </div>
 
-    
-     </div>
+                <div class="form-group">
+                    <label for="dob">Date of Birth:</label>
+                    <input type="date" id="dob" name="Dob" required>
+                    <small class="error-message" id="dobError"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="Password" required minlength="6">
+                    <small class="error-message" id="passwordError"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="Email" required>
+                    <small class="error-message" id="emailError"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="tel" id="phone" name="Phone" maxlength="10" pattern="[0-9]{10}" required>
+                    <small class="error-message" id="phoneError"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>Gender:</label>
+                    <label class="radio-label" for="male">
+                        Male
+                        <input type="radio" id="male" name="Gender" value="M" required>
+                    </label>
+                    <label class="radio-label" for="female">
+                        Female
+                        <input type="radio" id="female" name="Gender" value="F" required>
+                    </label>
+                    <label class="radio-label" for="other">
+                        Other
+                        <input type="radio" id="other" name="Gender" value="O" required>
+                    </label>
+                    <small class="error-message" id="genderError"></small>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit">Register</button>
+                </div>
+            </form>
+        </div>
     </div>
 </section>
+
+<script>
+    document.getElementById('registrationForm').addEventListener('submit', function (event) {
+        let isValid = true;
+
+        // Clear all error messages
+        document.querySelectorAll('.error-message').forEach(function (el) {
+            el.textContent = '';
+        });
+
+        // Validate First Name
+        const firstName = document.getElementById('firstName').value;
+        if (!firstName || firstName.length <= 3) {
+            document.getElementById('firstNameError').textContent = "First name must be more than 15 characters.";
+            isValid = false;
+        }
+
+        // Validate Second Name
+        const secondName = document.getElementById('SecondName').value;
+        if (!secondName || secondName.length <= 3) {
+            document.getElementById('SecondNameError').textContent = "Second name must be more than 15 characters.";
+            isValid = false;
+        }
+
+        // Validate Last Name
+        const lastName = document.getElementById('LastName').value;
+        if (!lastName || lastName.length <= 3) {
+            document.getElementById('LastNameError').textContent = "Last name must be more than 15 characters.";
+            isValid = false;
+        }
+
+        // Validate Date of Birth (Age should not be less than 10 years)
+        const dob = document.getElementById('dob').value;
+        if (dob) {
+            const birthDate = new Date(dob);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const monthDifference = today.getMonth() - birthDate.getMonth();
+            if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            if (age < 10) {
+                document.getElementById('dobError').textContent = "You must be at least 10 years old.";
+                isValid = false;
+            }
+        } else {
+            document.getElementById('dobError').textContent = "Date of Birth is required.";
+            isValid = false;
+        }
+
+        // Validate Password
+        const password = document.getElementById('password').value;
+        if (!password || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{6,}/.test(password)) {
+            document.getElementById('passwordError').textContent = "Password must be at least 6 characters long and include one uppercase, one lowercase, one digit, and one special character.";
+            isValid = false;
+        }
+
+        // Validate Email
+        const email = document.getElementById('email').value;
+        if (!email || !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email)) {
+            document.getElementById('emailError').textContent = "Please enter a valid email address.";
+            isValid = false;
+        }
+
+        // Validate Phone Number
+        const phone = document.getElementById('phone').value;
+        if (!phone || !/^\d{10}$/.test(phone)) {
+            document.getElementById('phoneError').textContent = "Phone number must be exactly 10 digits.";
+            isValid = false;
+        }
+
+        // Validate Gender
+        const genderSelected = document.querySelector('input[name="Gender"]:checked');
+        if (!genderSelected) {
+            document.getElementById('genderError').textContent = "Please select your gender.";
+            isValid = false;
+        }
+
+        // Prevent form submission if validation fails
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
+</script>
