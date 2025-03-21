@@ -26,22 +26,11 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="firstName">First Name:</label>
-                    <input type="text" id="firstName" name="FirstName" maxlength="15" required>
+                    <label for="firstName">Full Name:</label>
+                    <input type="text" id="firstName" name="Name" maxlength="64" required>
                     <small class="error-message" id="firstNameError"></small>
                 </div>
 
-                <div class="form-group">
-                    <label for="secondName">Second Name:</label>
-                    <input type="text" id="SecondName" name="SecondName" maxlength="15">
-                    <small class="error-message" id="SecondNameError"></small>
-                </div>
-
-                <div class="form-group">
-                    <label for="lastName">Last Name:</label>
-                    <input type="text" id="LastName" name="LastName" maxlength="15">
-                    <small class="error-message" id="LastNameError"></small>
-                </div>
 
                 <div class="form-group">
                     <label for="dob">Date of Birth:</label>
@@ -102,27 +91,15 @@
         });
 
         // Validate First Name
-        const firstName = document.getElementById('firstName').value;
-        if (!firstName || firstName.length <= 3) {
-            document.getElementById('firstNameError').textContent = "First name must be more than 15 characters.";
-            isValid = false;
-        }
+           const firstName = document.getElementById('firstName').value.trim();
+        const nameRegex = /^[a-zA-Z ]{3,64}$/; // Only letters, between 3 and 15 characters
 
-        // Validate Second Name
-        const secondName = document.getElementById('SecondName').value;
-        if (!secondName || secondName.length <= 3) {
-            document.getElementById('SecondNameError').textContent = "Second name must be more than 15 characters.";
-            isValid = false;
-        }
-
-        // Validate Last Name
-        const lastName = document.getElementById('LastName').value;
-        if (!lastName || lastName.length <= 3) {
-            document.getElementById('LastNameError').textContent = "Last name must be more than 15 characters.";
-            isValid = false;
-        }
-
-        // Validate Date of Birth (Age should not be less than 10 years)
+    if (!nameRegex.test(firstName)) {
+        document.getElementById('firstNameError').textContent = "Only Characters Allowed.";
+        isValid = false;
+    } else {
+        document.getElementById('firstNameError').textContent = ""; // Clear error if valid
+    }
         const dob = document.getElementById('dob').value;
         if (dob) {
             const birthDate = new Date(dob);
@@ -141,35 +118,44 @@
             isValid = false;
         }
 
-        // Validate Password
-        const password = document.getElementById('password').value;
-        if (!password || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{6,}/.test(password)) {
-            document.getElementById('passwordError').textContent = "Password must be at least 6 characters long and include one uppercase, one lowercase, one digit, and one special character.";
-            isValid = false;
-        }
 
-        // Validate Email
+        // const password = document.getElementById('password').value;
+        // if (!password || !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{6,}/.test(password)) {
+        //     document.getElementById('passwordError').textContent = "Password must be at least 6 characters long and include one uppercase, one lowercase, one digit, and one special character.";
+        //     isValid = false;
+        // }
+
+        const password = document.getElementById('password').value;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%?&])[A-Za-z\d@@$!%?&]{6,}$/;
+
+if (!password || !passwordRegex.test(password)) {
+    document.getElementById('passwordError').textContent = "Password must be at least 6 characters long and include one uppercase, one lowercase, one digit, and one special character.";
+    isValid = false;
+}
+
+
+
         const email = document.getElementById('email').value;
         if (!email || !/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email)) {
             document.getElementById('emailError').textContent = "Please enter a valid email address.";
             isValid = false;
         }
 
-        // Validate Phone Number
-        const phone = document.getElementById('phone').value;
-        if (!phone || !/^\d{10}$/.test(phone)) {
-            document.getElementById('phoneError').textContent = "Phone number must be exactly 10 digits.";
-            isValid = false;
-        }
 
-        // Validate Gender
+       const phone = document.getElementById('phone').value;
+    if (!phone || !/^\d{10}$/.test(phone) || phone === '0000000000') {
+        document.getElementById('phoneError').textContent = "Phone number must be exactly 10 digits and not all zeros.";
+        isValid = false;
+    }
+
+
         const genderSelected = document.querySelector('input[name="Gender"]:checked');
         if (!genderSelected) {
             document.getElementById('genderError').textContent = "Please select your gender.";
             isValid = false;
         }
 
-        // Prevent form submission if validation fails
+
         if (!isValid) {
             event.preventDefault();
         }

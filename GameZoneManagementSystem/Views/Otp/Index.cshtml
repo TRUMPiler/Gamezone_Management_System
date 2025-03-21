@@ -4,3 +4,6 @@
 @{
     Layout = null;
 }
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@HttpContextAccessor.HttpContext.Session.GetString("Userid")

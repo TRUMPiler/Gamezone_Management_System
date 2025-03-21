@@ -2,10 +2,23 @@
 using GameZoneManagementSystem.Models;
 using System.Data.SqlClient;
 using GameZoneManagementSystem.Controllers;
+using System.Data;
 namespace GameZoneManagementSystem.Controllers
 {
     public class CustomerController : Controller
     {
+        public bool CheckRole()
+        {
+
+            if(HttpContext.Session.GetString("Role")!=null)
+            {
+                if(HttpContext.Session.GetString("Role")=="1")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         SqlConnection con=new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
         String otp = "";
         public Boolean isLoggedin()
@@ -26,7 +39,15 @@ namespace GameZoneManagementSystem.Controllers
         }
         public IActionResult Index()
         {   
-            return View();
+            if(CheckRole())
+            {
+                return View();
+            }
+            else
+            {
+                string script = "<script>alert('Role not matched');window.location='/Home/Index';</script>";
+                return Content(script, "text/html");
+            }
         }
         [HttpPost]
         public IActionResult Otp(OtpGen otps)
@@ -48,10 +69,10 @@ namespace GameZoneManagementSystem.Controllers
             }
             else
             {
-                string script = "<script>alert('otp not matched');</script>";
+                string script = "<script>alert('otp not matched');window.location='/Customer/Otp'</script>";
                 return Content(script, "text/html");
             }
-            return View();
+            //return View();
         }
        
         public IActionResult Register()
@@ -62,9 +83,7 @@ namespace GameZoneManagementSystem.Controllers
                     "<script>window.location='/Customer/Index'</script>";
                 return Content(script, "text/html");
             }
-            
                 return View();
-            
         }
         public IActionResult Logout()
         {
@@ -80,7 +99,7 @@ namespace GameZoneManagementSystem.Controllers
         private int updateStatus(bool status,string Email)
         {
 
-            SqlCommand cmd = new SqlCommand("update Tbl_User set status=@Status where Email=@Email", con);
+            SqlCommand cmd = new SqlCommand("update Tbl_Users set status=@Status where Email=@Email", con);
             cmd.Parameters.AddWithValue("@Status", status);
             cmd.Parameters.AddWithValue("@Email", Email);
             con.Open();
@@ -97,12 +116,20 @@ namespace GameZoneManagementSystem.Controllers
             {
                 connection.Open();
 
-                string checkUserQuery = @"SELECT COUNT(*) FROM Tbl_User WHERE Email = @Email OR Phone = @Phone";
+                string checkUserQuery = @"SELECT COUNT(*) FROM Tbl_Users WHERE Email = @Email OR Phone = @Phone";
                 using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
                 {
-                    checkCommand.Parameters.AddWithValue("@Email", user.Email);
-                    checkCommand.Parameters.AddWithValue("@Phone", user.Phone);
+                    // Ensure user.Email and user.Phone are not null or empty
+                    if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Phone))
+                    {
+                        throw new ArgumentException("Email or Phone cannot be null or empty.");
+                    }
 
+                    // Add parameters explicitly
+                    checkCommand.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = user.Email;
+                    checkCommand.Parameters.Add("@Phone", SqlDbType.NVarChar, 15).Value = user.Phone;
+
+                    // ExecuteScalar must be called as a method
                     int userCount = (int)checkCommand.ExecuteScalar();
                     if (userCount > 0)
                     {
@@ -110,26 +137,26 @@ namespace GameZoneManagementSystem.Controllers
                         return Content(script, "text/html");
                     }
                 }
+            }
+            
 
-                string query = @"INSERT INTO Tbl_User 
-                         (FirstName, SecondName, LastName, Dob, Password, Email, Phone, Role, Gender, Status) 
-                         VALUES (@FirstName, @SecondName, @LastName, @Dob, @Password, @Email, @Phone, @Role, @Gender, @Status)";
+            string query = @"INSERT INTO Tbl_Users 
+                         (Name, Dob, Password, Email, Phone, RoleID, Gender, Status) 
+                         VALUES (@Name, @Dob, @Password, @Email, @Phone, @Role, @Gender, @Status)";
 
-                using (SqlCommand command = new SqlCommand(query, connection))
+                using (SqlCommand command = new SqlCommand(query, con))
                 {
-                    command.Parameters.AddWithValue("@FirstName", user.FirstName);
-                    command.Parameters.AddWithValue("@SecondName", user.SecondName ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@LastName", user.LastName ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@Name", user.Name);
                     command.Parameters.AddWithValue("@Dob", user.Dob ?? (object)DBNull.Value);
 
                     var hashedPassword = hp.HashPassword(user.Password);
                     command.Parameters.AddWithValue("@Password", hashedPassword);
                     command.Parameters.AddWithValue("@Email", user.Email ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@Phone", user.Phone ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Role", user.Role ?? "c");
+                    command.Parameters.AddWithValue("@Role", 1);
                     command.Parameters.AddWithValue("@Gender", user.Gender);
                     command.Parameters.AddWithValue("@Status", 0);
-
+                    con.Open();
                     if (command.ExecuteNonQuery() > 0)
                     {
                         OtpController otpcon = new OtpController();
@@ -138,10 +165,12 @@ namespace GameZoneManagementSystem.Controllers
                         HttpContext.Session.SetString("otp", otp);
 
                         string script = "<script>alert('User registered successfully!');window.location='/Customer/Otp';</script>";
+                    con.Close();
                         return Content(script, "text/html");
                     }
                     else
                     {
+                        con.Close();
                         string script = "<script>alert('User registration Failed!');window.location='/Customer/Registration';</script>";
                         return Content(script, "text/html");
                     }
@@ -149,5 +178,5 @@ namespace GameZoneManagementSystem.Controllers
             }
         }
 
-    }
+    
 }

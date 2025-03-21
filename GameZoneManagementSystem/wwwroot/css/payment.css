@@ -1,0 +1,79 @@
+﻿/* Full Page Background */
+body {
+    font-family: Arial, sans-serif;
+    background-color: black; /* Dark theme background */
+    color: white; /* Text color */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+}
+
+/* Title Styles */
+h1, h2 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* Balance Display */
+.balance {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffcc00; /* Gold color for balance */
+    margin-bottom: 20px;
+}
+
+/* Payment Instructions */
+.payment-info {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+/* Button Styling */
+button {
+    background-color: #d833ee; /* Bright button */
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+    button:hover {
+        background-color: #1822dd; /* Darker blue on hover */
+    }
+
+/* Input Field Styling */
+input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    color: black;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        width: 95%;
+    }
+
+    h1, h2 {
+        font-size: 20px;
+    }
+
+    button {
+        font-size: 16px;
+    }
+}

@@ -1,27 +1,89 @@
 ﻿@{
     ViewData["Title"] = "Payment Page";
-    Layout = null;
+
 }
 @model GameZoneManagementSystem.Models.Credit;
-<h1>Current Balance of you're Account is:</h1><h5>@if (Model.credits.IsNull) {
-        <p>0</p>
-    }
-    else
-    {
-        @Model.credits;
-    }
-</h5>
-<h1>Complete Your Payment</h1>
 
-<div>
-    <p>Proceed to complete the payment. Once successful, the payment ID will be captured and sent to the server.</p>
-</div>
+@* <section class="intro-section"></section> *@
+@* <section class="featured-section"> *@
+@*     <div class="featured-box">  *@
+@*         <div class="text-box">  *@
+@*             <div class="featured-bg set-bg" data-setbg="@Url.Content("~/img/outside/featured-bg.jpg")"></div> *@
 
-<!-- Placeholder for Razorpay Payment Button -->
-<div id="payment-button-container">
-    <button id="rzp-button">Pay Now</button>
-</div>
+@*             <div class="top-meta">11.11.18  /  in <a href="">Games</a></div> *@
+@*             <h3> *@
+@*                 Current Balance of you're Account is:@if (Model.credits.IsNull) *@
+@*                 { *@
+@*                     <a>0</a> *@
+@*                 } *@
+@*                 else *@
+@*                 { *@
+@*                     @Model.credits *@
+                    
+@*                 } *@
+@*             </h3> *@
+           
 
+
+
+
+
+@* <!-- Placeholder for Razorpay Payment Button --> *@
+
+
+
+
+@*             <p>Complete Your Payment</p> *@
+@*             <p>Proceed to complete the payment. Once successful, the payment ID will be captured and sent to the server.</p> *@
+@*             <a href="#" class="read-more">Read More  <img src="~/img/icons/double-arrow.png" alt="#" /></a>  *@
+@*               <button id="rzp-button">Pay Now</button> *@
+@*            
+@*     </div>   *@
+@* 	 </div>  *@
+@* 	 </section>   *@ 
+<section class="intro-section">
+	<div class="container"> 
+ 		<div class="row">
+@* 			<div class="col-md-4"> *@
+@* 				<div class="intro-text-box text-box text-white"> *@
+@* 					<div class="top-meta">11.11.18  /  in <a href="">Games</a></div> *@
+@* 					<h3>The best online game is out now!</h3> *@
+@* 					<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida....</p> *@
+@* 					<a href="#" class="read-more">Read More  <img src="~/img/icons/double-arrow.png" alt="#" /></a> *@
+@* 				</div> *@
+@* 			</div> *@
+@* 			<div class="col-md-4"> *@
+@* 				<div class="intro-text-box text-box text-white"> *@
+@* 					<div class="top-meta">11.11.18  /  in <a href="">Playstation</a></div> *@
+@* 					<h3>Top 5 best games in november</h3> *@
+@* 					<p>Ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum  labore suspendisse ultrices gravida....</p> *@
+@* 					<a href="#" class="read-more">Read More  <img src="~/img/icons/double-arrow.png" alt="#" /></a> *@
+@* 				</div> *@
+@* 			</div> *@
+			<div class="col-md-4"> 
+				<div class="intro-text-box text-box text-white">
+					<div class="top-meta">11.11.18  /  in <a href="">Reviews</a></div>
+                                <h3>
+                                    Current Balance of you're Account is:@if (Model.credits.IsNull)
+                                    {
+                                        <a>0</a>
+                                    }
+                                    else
+                                    {
+                                        @Model.credits
+
+                                    }
+                                </h3>
+					<p>Click Below add more 500 credits to You're Account</p>
+                     <div id="payment-button-container"> 
+                <button id="rzp-button" >Pay Now</button> 
+             </div>
+					@* <a href="#" class="read-more">Read More  <img src="~/img/icons/double-arrow.png" alt="#" /></a> *@
+				</div>
+			</div>
+ 		</div>
+ 	</div> 
+</section> 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     // Razorpay options

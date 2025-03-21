@@ -3,6 +3,8 @@ using System.Data.SqlClient;
 using Razorpay.Api;
 using Org.BouncyCastle.Utilities;
 using GameZoneManagementSystem.Models;
+using System.ComponentModel;
+using System.Data.SqlTypes;
 
 namespace GameZoneManagementSystem.Controllers
 {
@@ -14,6 +16,7 @@ namespace GameZoneManagementSystem.Controllers
 
         public IActionResult Index()
         {
+            
             return View();
         }
 
@@ -64,7 +67,7 @@ namespace GameZoneManagementSystem.Controllers
                     con.Open();
 
                     // Check if user already has a credit entry
-                    using (SqlCommand checkCmd = new SqlCommand("SELECT count(id) FROM tbl_credit WHERE userid = @userid", con))
+                    using (SqlCommand checkCmd = new SqlCommand("SELECT count(id) FROM Tbl_Credits WHERE userid = @userid", con))
                     {
                         checkCmd.Parameters.AddWithValue("@userid", userId);
                         int count = (int)checkCmd.ExecuteScalar();
@@ -72,26 +75,30 @@ namespace GameZoneManagementSystem.Controllers
                         if (count == 0)
                         {
                             // Insert a new credit entry if none exists
-                            using (SqlCommand insertCreditCmd = new SqlCommand("INSERT INTO tbl_credit (Credits, userid) VALUES (@credits, @userid)", con))
+                            using (SqlCommand insertCreditCmd = new SqlCommand("INSERT INTO Tbl_Credits (Credits, UserId) VALUES (@credits, @userid)", con))
                             {
                                 if(HttpContext.Session.GetString("Userid")!=null)
                                 {
                                     string v = HttpContext.Session.GetString("Userid").ToString();
                                     userId = Int32.Parse(v);
+
+                                    insertCreditCmd.Parameters.AddWithValue("@credits", 0);
+                                    insertCreditCmd.Parameters.AddWithValue("@userid", userId);
+                                    insertCreditCmd.ExecuteNonQuery();
                                 }
                                 else
                                 {
-                                    userId = 6;
+                                    userId = 1;
+                                    Console.WriteLine("Error: Details not found");
+                                    return Json(new { success = false,error="Details Not Found" });
                                 }
-                                insertCreditCmd.Parameters.AddWithValue("@credits", 0);
-                                insertCreditCmd.Parameters.AddWithValue("@userid",userId);
-                                insertCreditCmd.ExecuteNonQuery();
+                                
                             }
                         }
                     }
 
                     // Update the credits for the user
-                    using (SqlCommand updateCreditCmd = new SqlCommand("UPDATE tbl_credit SET Credits = Credits + @credits WHERE userid = @userid", con))
+                    using (SqlCommand updateCreditCmd = new SqlCommand("UPDATE Tbl_Credits SET Credits = Credits + @credits WHERE UserId = @userid", con))
                     {
                         updateCreditCmd.Parameters.AddWithValue("@credits", paymentAmount);
                         updateCreditCmd.Parameters.AddWithValue("@userid", userId);
@@ -100,12 +107,12 @@ namespace GameZoneManagementSystem.Controllers
 
                     // Insert payment details into tbl_payment
                     using (SqlCommand insertPaymentCmd = new SqlCommand(
-                        "INSERT INTO tbl_payment (userid, Transcationid, Type) VALUES (@userid, @paymentId, @amount)", con))
+                        "INSERT INTO Tbl_Payments (userid, TransactionID, Type,Date) VALUES (@userid, @paymentId, @amount,@Date)", con))
                     {
                         insertPaymentCmd.Parameters.AddWithValue("@userid", userId);
                         insertPaymentCmd.Parameters.AddWithValue("@paymentId", paymentId);
                         insertPaymentCmd.Parameters.AddWithValue("@amount", 1);
-                        
+                        insertPaymentCmd.Parameters.AddWithValue("@Date", DateTime.Now.Date);
                         insertPaymentCmd.ExecuteNonQuery();
                     }
                 }
@@ -118,10 +125,62 @@ namespace GameZoneManagementSystem.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+        public bool AddAmout(int credit,int userid=0)
+        {
+
+            if(userid==0)
+            {
+                return false;
+            }
+            Credit CurrentDetails = FetchDetails(userid.ToString());
+            //if (CurrentDetails.credits >= 999999)
+            //{
+            //    return false;
+            //}
+            CurrentDetails.credits = CurrentDetails.credits + credit;
+            using (SqlConnection con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;"))
+            {
+                con.Open();
+                string query = @"Update Tbl_Credits set Credits=@Credits where UserID=@Userid";
+                using (SqlCommand com = new SqlCommand(query, con))
+                {
+                    com.Parameters.AddWithValue("@Credits", CurrentDetails.credits);
+                    com.Parameters.AddWithValue("@Userid", userid);
+                    com.ExecuteNonQuery();
+                }
+            }
+            return true;
+        }
+        public bool ReduceAmout(int credit,int userid=0)
+        {
+            if (userid==0)
+            {
+                return false;
+            }
+            Credit CurrentDetails=FetchDetails(userid.ToString());
+            if(CurrentDetails.credits<=credit)
+            {
+                return false;
+            }
+            CurrentDetails.credits = CurrentDetails.credits-credit;
+            using (SqlConnection con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;"))
+            {
+                con.Open();
+                string query = @"Update Tbl_Credits set Credits=@Credits where UserID=@Userid";
+                using(SqlCommand com=new SqlCommand(query,con))
+                {
+                    com.Parameters.AddWithValue("@Credits",CurrentDetails.credits);
+                    com.Parameters.AddWithValue("@Userid",userid);
+                    com.ExecuteNonQuery();
+                }
+            }
+                return true;
+        }
         public Credit FetchDetails(String userid="1")
         {
+
             Credit g = new Credit();
-            SqlCommand com = new SqlCommand("Select * from tbl_credit where userid=@userid",_con);
+            SqlCommand com = new SqlCommand("Select * from Tbl_Credits where UserId=@userid",_con);
             com.Parameters.AddWithValue("@userid",userid);
             _con.Open();
             using (SqlDataReader r= com.ExecuteReader())

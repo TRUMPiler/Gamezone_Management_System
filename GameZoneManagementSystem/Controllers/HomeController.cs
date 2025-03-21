@@ -60,7 +60,7 @@ namespace GameZoneManagementSystem.Controllers
             {
                 
                 connection.Open();
-                string query = "SELECT id,Password, Role FROM Tbl_User WHERE Email = @Email AND Status=@Status";
+                string query = "SELECT id,Password, RoleID FROM Tbl_Users WHERE Email = @Email AND Status=@Status";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Email", user.Email);
@@ -72,7 +72,7 @@ namespace GameZoneManagementSystem.Controllers
                         {
                             user.id =(int) reader["id"];
                             storedHashedPassword = reader["Password"].ToString();
-                            user.Role = reader["Role"].ToString();
+                            user.Role = (int)reader["RoleID"];
                         }
 
                     }
@@ -84,13 +84,24 @@ namespace GameZoneManagementSystem.Controllers
             {
                 HttpContext.Session.SetInt32("Login", 1);
                 HttpContext.Session.SetString("Email", user.Email);
-                HttpContext.Session.SetString("Role", user.Role);
+                HttpContext.Session.SetString("Role", user.Role.ToString());
                 HttpContext.Session.SetString("Userid", user.id.ToString());
-                return RedirectToAction("Index", "Customer");
+                if(user.Role==1)
+                {
+                    return RedirectToAction("Index", "Admin");
+                }
+                else if(user.Role == 2)
+                {
+                    return RedirectToAction("Index", "Customer");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
             else
             {
-                string script = "<script>alert('Hashed Password Not Found');window.location='/Home/Login'</script>";
+                string script = "<script>alert('Credentials Not Found, please make sure you are using proper credentials');window.location='/Home/Login'</script>";
                 return Content(script, "text/html");
             }
         }
