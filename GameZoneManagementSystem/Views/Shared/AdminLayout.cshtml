@@ -168,6 +168,9 @@
                         <i class="fas fa-th-large"></i>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <button type="button" class="btn btn-danger" onclick="window.location='@Url.Action("Logout","Home")'">Logout</button>
+                </li>
             </ul>
         </nav>
         <!-- /.navbar -->
@@ -519,21 +522,21 @@
                         @*         </li> *@
                         @*     </ul> *@
                         @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a href="#" class="nav-link"> *@
-                        @*         <i class="nav-icon fas fa-book"></i> *@
-                        @*         <p> *@
-                        @*             Pages *@
-                        @*             <i class="fas fa-angle-left right"></i> *@
-                        @*         </p> *@
-                        @*     </a> *@
-                        @*     <ul class="nav nav-treeview"> *@
-                        @*         <li class="nav-item"> *@
-                        @*             <a href="pages/examples/invoice.html" class="nav-link"> *@
-                        @*                 <i class="far fa-circle nav-icon"></i> *@
-                        @*                 <p>Invoice</p> *@
-                        @*             </a> *@
-                        @*         </li> *@
+                         <li class="nav-item"> 
+                             <a href="#" class="nav-link"> 
+                                 <i class="nav-icon fas fa-book"></i> 
+                                <p> 
+                                     Add Items 
+                                     <i class="fas fa-angle-left right"></i> 
+                                </p> 
+                             </a> 
+                           <ul class="nav nav-treeview"> 
+                                 <li class="nav-item"> 
+                                     <a href="@Url.Action("AddGames","Admin")" class="nav-link"> 
+                                         <i class="far fa-circle nav-icon"></i> 
+                                        <p>Games</p> 
+                                     </a> 
+                                 </li> 
                         @*         <li class="nav-item"> *@
                         @*             <a href="pages/examples/profile.html" class="nav-link"> *@
                         @*                 <i class="far fa-circle nav-icon"></i> *@
@@ -588,8 +591,8 @@
                         @*                 <p>Contact us</p> *@
                         @*             </a> *@
                         @*         </li> *@
-                        @*     </ul> *@
-                        @* </li> *@
+                             </ul> 
+                         </li> 
                         @* <li class="nav-item"> *@
                         @*     <a href="#" class="nav-link"> *@
                         @*         <i class="nav-icon far fa-plus-square"></i> *@
@@ -908,22 +911,6 @@
     <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
     <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-    <script>
-        $(function () {
-          $("#example1").DataTable({
-            "responsive": true, "lengthChange": false, "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-          }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-          $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-          });
-        });
-    </script>
+    
 </body>
 </html>

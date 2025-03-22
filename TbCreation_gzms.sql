@@ -66,9 +66,9 @@
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Games
 		Game VARCHAR(20) NOT NULL, -- Game name
 		Game_Description VARCHAR(200) NOT NULL, -- Game description
-		BranchID INT NOT NULL, -- FK to Tbl_Area
+		SubCatID INT NOT NULL, 
 		Image VARCHAR(200) NOT NULL, -- Image URL or path
-		CONSTRAINT FK_Tbl_Game_Branch FOREIGN KEY (BranchID) REFERENCES Tbl_Area(ID)
+		CONSTRAINT FK_Tbl_Game_Branch FOREIGN KEY (SubCatID) REFERENCES Tbl_Games_Sub_Category(ID)
 	);
 
 	CREATE TABLE Tbl_Day (
@@ -125,3 +125,5 @@
 	insert into Tbl_Role(Role) values('E');
 	insert into Tbl_Role(Role) values('M');
 	insert into Tbl_Users(Name,DOB,Password,Email,Phone,Gender,RoleID,Status) values('Varun Dhankhara','08-09-2004','4d1523191588e66ee85ff4c3d707040aa24762d7633fd19e4b2cf08056bb37f9','22bmiit031@gmail.com','9773472368','M',1,1);
+	insert into Tbl_Games_Category(CategoryName) VALUES('Indoor')
+	insert into Tbl_Games_Sub_Category(CategoryID,Sub_Category_Name) VALUES(1,'Arcade');
