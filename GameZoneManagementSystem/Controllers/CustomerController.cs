@@ -12,7 +12,7 @@ namespace GameZoneManagementSystem.Controllers
 
             if(HttpContext.Session.GetString("Role")!=null)
             {
-                if(HttpContext.Session.GetString("Role")=="1")
+                if(HttpContext.Session.GetString("Role")=="2")
                 {
                     return true;
                 }
@@ -153,7 +153,7 @@ namespace GameZoneManagementSystem.Controllers
                     command.Parameters.AddWithValue("@Password", hashedPassword);
                     command.Parameters.AddWithValue("@Email", user.Email ?? (object)DBNull.Value);
                     command.Parameters.AddWithValue("@Phone", user.Phone ?? (object)DBNull.Value);
-                    command.Parameters.AddWithValue("@Role", 1);
+                    command.Parameters.AddWithValue("@Role", 2);
                     command.Parameters.AddWithValue("@Gender", user.Gender);
                     command.Parameters.AddWithValue("@Status", 0);
                     con.Open();

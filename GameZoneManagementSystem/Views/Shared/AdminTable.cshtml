@@ -9,8 +9,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Dashboard</title>
+    <title>@ViewBag.Title</title>
+    <script type="text/javascript" language="javascript">
+        function DisableBackButton() {
+            window.history.forward()
+        }
+        DisableBackButton();
+        window.onload = DisableBackButton;
+        window.onpageshow = function (evt) { if (evt.persisted) DisableBackButton() }
+        window.onunload = function () { void (0) }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        #charts {
+            display: block;
+            box-sizing: border-box;
+        }
 
+            #charts table td {
+                height: 95px;
+                width: 95px;
+            }
+    </style>
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome -->
@@ -22,7 +42,6 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css">
 
-    <script src="~/plugins/jquery/jquery.min.js"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     <div class="wrapper">
@@ -860,46 +879,45 @@
 <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
-<!-- jQuery -->
-   
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<!-- Bootstrap 4 -->
-<script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables  & Plugins -->
-<script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="~/plugins/jszip/jszip.min.js"></script>
-<script src="~/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- jQuery -->
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables  & ~/plugins -->
+    <script src="~/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/plugins/jszip/jszip.min.js"></script>
+    <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/dist/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="~/dist/js/demo.js"></script>
+    <!-- Page specific script -->
     <script>
         $(function () {
-          $("#example1").DataTable({
-            "responsive": true, "lengthChange": false, "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-          }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-          $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-          });
+            $("#example1").DataTable({
+                "responsive": true, "lengthChange": false, "autoWidth": false,
+                "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+            });
         });
     </script>
-<!-- AdminLTE App -->
-<script src="~/dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="~/dist/js/demo.js"></script>
-
 <!-- Page specific script -->
 
 </body>

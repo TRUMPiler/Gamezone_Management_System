@@ -73,6 +73,7 @@ namespace GameZoneManagementSystem.Controllers
                             user.id =(int) reader["id"];
                             storedHashedPassword = reader["Password"].ToString();
                             user.Role = (int)reader["RoleID"];
+                            
                         }
 
                     }
