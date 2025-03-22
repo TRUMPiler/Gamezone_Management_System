@@ -44,5 +44,13 @@ namespace GameZoneManagementSystem.Controllers
         {
             return View();
         }
+        public IActionResult Users()
+        {
+            if (!CheckRole())
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            return View();
+        }
     }
 }
