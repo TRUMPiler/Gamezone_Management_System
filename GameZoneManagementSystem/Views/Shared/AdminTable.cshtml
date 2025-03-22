@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@ViewBag.Title</title>
+    <title>GZMS</title>
     <script type="text/javascript" language="javascript">
         function DisableBackButton() {
             window.history.forward()
@@ -185,6 +185,10 @@
                         <i class="fas fa-th-large"></i>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <button type="button" class="btn btn-danger" onclick="window.location='@Url.Action("Logout","Home")'">Logout</button>
+                </li>
+               
             </ul>
         </nav>
         <!-- /.navbar -->
@@ -225,8 +229,8 @@
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <!-- Add icons to the links using the .nav-icon class
                              with font-awesome or any other icon font library -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
+                        <li class="nav-item menu">
+                            <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
                                     Dashboard
@@ -235,7 +239,7 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Index","Admin")" class="nav-link active">
+                                    <a href="@Url.Action("Index","Admin")" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Dashboard</p>
                                     </a>
@@ -452,7 +456,7 @@
                         @*         </li> *@
                         @*     </ul> *@
                         @* </li> *@
-                        <li class="nav-item">
+                        <li class="nav-item menu-open">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-table"></i>
                                 <p>
@@ -480,6 +484,8 @@
                                 @*     </a> *@
                                 @* </li> *@
                             </ul>
+                            
+
                         </li>
                         @* <li class="nav-header">EXAMPLES</li> *@
                         @* <li class="nav-item"> *@
@@ -536,22 +542,22 @@
                         @*         </li> *@
                         @*     </ul> *@
                         @* </li> *@
-                        @* <li class="nav-item"> *@
-                        @*     <a href="#" class="nav-link"> *@
-                        @*         <i class="nav-icon fas fa-book"></i> *@
-                        @*         <p> *@
-                        @*             Pages *@
-                        @*             <i class="fas fa-angle-left right"></i> *@
-                        @*         </p> *@
-                        @*     </a> *@
-                        @*     <ul class="nav nav-treeview"> *@
-                        @*         <li class="nav-item"> *@
-                        @*             <a href="pages/examples/invoice.html" class="nav-link"> *@
-                        @*                 <i class="far fa-circle nav-icon"></i> *@
-                        @*                 <p>Invoice</p> *@
-                        @*             </a> *@
-                        @*         </li> *@
-                        @*         <li class="nav-item"> *@
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-book"></i>
+                                <p>
+                                    Add Items
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("AddGames","Admin")" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Games</p>
+                                    </a>
+                                </li>
+                                @*         <li class="nav-item"> *@
                         @*             <a href="pages/examples/profile.html" class="nav-link"> *@
                         @*                 <i class="far fa-circle nav-icon"></i> *@
                         @*                 <p>Profile</p> *@
@@ -605,8 +611,8 @@
                         @*                 <p>Contact us</p> *@
                         @*             </a> *@
                         @*         </li> *@
-                        @*     </ul> *@
-                        @* </li> *@
+                            </ul> 
+                         </li>
                         @* <li class="nav-item"> *@
                         @*     <a href="#" class="nav-link"> *@
                         @*         <i class="nav-icon far fa-plus-square"></i> *@
@@ -901,6 +907,7 @@
     <!-- AdminLTE for demo purposes -->
     <script src="~/dist/js/demo.js"></script>
     <!-- Page specific script -->
+    
     <script>
         $(function () {
             $("#example1").DataTable({
