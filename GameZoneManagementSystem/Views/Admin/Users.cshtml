@@ -91,7 +91,8 @@
                           {
                               <td>Deactive</td>
                           }
-                                            <td><button type="button" class="btn btn-info" onclick="window.location='@Url.Action("Logout","Home")'">Edit User</button>
+                                            <td>
+                                                <button type="button" class="btn btn-info" onclick="window.location.href='@Url.Action("EditUser", "Admin", new { id = user.id })'">Edit User</button>
                                               @if(user.Status==true)
                                               {
                                                     <button type="button" class="btn btn-danger" onclick="window.location.href='@Url.Action("Deactive", "Admin", new { userid = user.id })'">Deactive</button>

@@ -10,7 +10,7 @@ namespace GameZoneManagementSystem.Controllers
     public class AdminController : Controller
     {
        
-        SqlConnection con = new SqlConnection("Data Source=DESKTOP-TN71EG6\\SQLEXPRESS;Initial Catalog=GZMS;Integrated Security=True;");
+        SqlConnection con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
         public bool CheckRole()
         {
             int role = 0;
@@ -437,6 +437,119 @@ namespace GameZoneManagementSystem.Controllers
             return View(payments);
         }
 
+        //Add Slot
+
+        public IActionResult AddSlot()
+        {
+            AddSlotViewModel viewModel = new AddSlotViewModel
+            {
+                Games = new List<Games>(),
+                Days = new List<DayModel>(),
+                TimeSlots = new List<TimeSlotModel>()
+            };
+
+            using (SqlConnection con = this.con)
+            {
+                con.Open();
+
+                // Games
+                string gameQuery = "SELECT ID, Game FROM Tbl_Game";
+                using (SqlCommand cmd = new SqlCommand(gameQuery, con))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        viewModel.Games.Add(new Games
+                        {
+                            Id = Convert.ToInt32(reader["ID"]),
+                            Name = reader["Game"].ToString()
+                        });
+                    }
+                }
+
+                // Days
+                string dayQuery = "SELECT ID, Day FROM Tbl_Day";
+                using (SqlCommand cmd = new SqlCommand(dayQuery, con))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        viewModel.Days.Add(new DayModel
+                        {
+                            Id = Convert.ToInt32(reader["ID"]),
+                            Name = reader["Day"].ToString()
+                        });
+                    }
+                }
+
+                // Time Slots
+                string timeSlotQuery = "SELECT ID, Start_Time, End_Time FROM Tbl_Time";
+                using (SqlCommand cmd = new SqlCommand(timeSlotQuery, con))
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        viewModel.TimeSlots.Add(new TimeSlotModel
+                        {
+                            Id = Convert.ToInt32(reader["ID"]),
+                            StartTime = (TimeSpan)reader["Start_Time"],
+                            EndTime = (TimeSpan)reader["End_Time"]
+                        });
+                    }
+                }
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public IActionResult AddSlot(int GameID, int DayID, int TimeSlotID)
+        {
+            int slotID;
+
+            using (SqlConnection con = this.con)
+            {
+                con.Open();
+
+                // 1. Check if the slot record already exists in Tbl_Slot using DayID and TimeSlotID.
+                string selectSlotQuery = "SELECT ID FROM Tbl_Slot WHERE DayID = @DayID AND TimeID = @TimeSlotID";
+                using (SqlCommand cmdSelectSlot = new SqlCommand(selectSlotQuery, con))
+                {
+                    cmdSelectSlot.Parameters.AddWithValue("@DayID", DayID);
+                    cmdSelectSlot.Parameters.AddWithValue("@TimeSlotID", TimeSlotID);
+                    object result = cmdSelectSlot.ExecuteScalar();
+                    if (result != null)
+                    {
+                        slotID = Convert.ToInt32(result);
+                    }
+                    else
+                    {
+                        // 2. Insert a new record into Tbl_Slot if not found.
+                        string insertSlotQuery = "INSERT INTO Tbl_Slot (DayID, TimeID) VALUES (@DayID, @TimeSlotID); SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmdInsertSlot = new SqlCommand(insertSlotQuery, con))
+                        {
+                            cmdInsertSlot.Parameters.AddWithValue("@DayID", DayID);
+                            cmdInsertSlot.Parameters.AddWithValue("@TimeSlotID", TimeSlotID);
+                            slotID = Convert.ToInt32(cmdInsertSlot.ExecuteScalar());
+                        }
+                    }
+                }
+
+                // 3. Insert into Tbl_Game_Slot to link the game with the slot.
+                string insertGameSlotQuery = "INSERT INTO Tbl_Game_Slot (GameID, SlotID) VALUES (@GameID, @SlotID)";
+                using (SqlCommand cmdGameSlot = new SqlCommand(insertGameSlotQuery, con))
+                {
+                    cmdGameSlot.Parameters.AddWithValue("@GameID", GameID);
+                    cmdGameSlot.Parameters.AddWithValue("@SlotID", slotID);
+                    cmdGameSlot.ExecuteNonQuery();
+                }
+
+                con.Close();
+            }
+
+            string script = "<script>alert('Slot added successfully!');window.location='/Admin/AddSlot';</script>";
+            return Content(script, "text/html");
+        }
 
     }
 }
