@@ -10,7 +10,7 @@ namespace GameZoneManagementSystem.Controllers
     public class AdminController : Controller
     {
        
-        SqlConnection con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
+        SqlConnection con = new SqlConnection("Data Source=DESKTOP-TN71EG6\\SQLEXPRESS;Initial Catalog=GZMS;Integrated Security=True;");
         public bool CheckRole()
         {
             int role = 0;
@@ -110,6 +110,41 @@ namespace GameZoneManagementSystem.Controllers
                 con.Close();
             }
             return subCategories;
+        }
+        [HttpPost]
+        public IActionResult UpdateUser(User user)
+        {
+            if (user.id == 0)
+            {
+                return Content("<script>alert('User ID is missing'); window.location.href='/Admin/Users';</script>", "text/html");
+            }
+
+            string query = "UPDATE Tbl_Users SET Name=@Name, Email=@Email, Phone=@Phone, Gender=@Gender, DOB=@DOB, RoleID=@Role, Status=@Status WHERE ID=@ID";
+
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                command.Parameters.AddWithValue("@Name", user.Name);
+                command.Parameters.AddWithValue("@Email", user.Email);
+                command.Parameters.AddWithValue("@Phone", user.Phone);
+                command.Parameters.AddWithValue("@Gender", user.Gender);
+                command.Parameters.AddWithValue("@DOB", user.Dob);
+                command.Parameters.AddWithValue("@Role", user.Role);
+                command.Parameters.AddWithValue("@Status", user.Status);
+                command.Parameters.AddWithValue("@ID", user.id);
+
+                con.Open();
+                int rowsAffected = command.ExecuteNonQuery();
+                con.Close();
+
+                if (rowsAffected > 0)
+                {
+                    return RedirectToAction("Users");
+                }
+                else
+                {
+                    return Content("<script>alert('Failed to update user'); window.location.href='/Admin/Users';</script>", "text/html");
+                }
+            }
         }
 
         public ActionResult Index1()
@@ -256,9 +291,52 @@ namespace GameZoneManagementSystem.Controllers
                 }
             }
         }
+        public IActionResult EditUser(int id = 0)
+        {
+            if (id == 0)
+            {
+                string script = $"<script>alert('User ID not Found');window.location='/Admin/Users';</script>";
+                return Content(script, "text/html");
+            }
+
+            User user = null;
+            string query = "SELECT * FROM Tbl_Users WHERE ID = @id";
+
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = new User
+                        {
+                            id = (int)reader["ID"],
+                            Name = reader["Name"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString(),
+                            Gender = char.Parse(reader["Gender"].ToString()),
+                            Dob = Convert.ToDateTime(reader["DOB"]),
+                            Status = (bool)reader["Status"],
+                            Role = Convert.ToInt32(reader["RoleID"])
+                        };
+                    }
+                }
+                con.Close();
+            }
+
+            if (user == null)
+            {
+                string script = $"<script>alert('User not found');window.location='/Admin/Users';</script>";
+                return Content(script, "text/html");
+            }
+
+            return View(user); // Pass user to the view
+        }
 
 
-       
+
         public IActionResult Users()
         {
             List<User> users = new List<User>();
@@ -292,5 +370,73 @@ namespace GameZoneManagementSystem.Controllers
             con.Close();
             return View(users);
         }
+
+        public IActionResult Games()
+        {
+            List<Games> games = new List<Games>();
+            string query = "SELECT g.ID, g.Game, g.Game_Description, g.SubCatID, g.Image, p.Credits " +
+                           "FROM Tbl_Game g " +
+                           "LEFT JOIN Tbl_Price p ON g.ID = p.GameID";
+
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Games game = new Games();
+                        game.Id = (int)reader["ID"];
+                        game.Name= (string)reader["Game"];
+                        game.Game_Description = (string)reader["Game_Description"];
+                        game.SubCatID = (int)reader["SubCatID"];
+                        game.image = (string)reader["Image"];
+                        game.price = reader["Credits"] != DBNull.Value ? (decimal)reader["Credits"] : 0;
+
+                        games.Add(game);
+                    }
+                }
+            }
+            con.Close();
+            return View(games);
+        }
+
+        public IActionResult Payments()
+        {
+            List<Payment> payments = new List<Payment>();
+            string query = @"
+        SELECT p.ID, p.TransactionID, p.Type, p.UserID, p.Date, u.Name AS UserName 
+        FROM Tbl_Payments p
+        INNER JOIN Tbl_Users u ON p.UserID = u.ID";
+
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Payment payment = new Payment();
+                        payment.Id = (int)reader["ID"];
+                        payment.TransactionId = reader["TransactionID"].ToString();
+                        payment.Type = (bool)reader["Type"];
+                        payment.UserId = (int)reader["UserID"];
+                        payment.Date = reader["Date"] != DBNull.Value ? (DateTime?)reader["Date"] : null;
+
+                        payments.Add(payment);
+                    }
+                }
+                con.Close();
+            }
+
+            if (!CheckRole())
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(payments);
+        }
+
+
     }
 }

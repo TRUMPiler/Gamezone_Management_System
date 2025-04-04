@@ -1,0 +1,64 @@
+﻿@model List<GameZoneManagementSystem.Models.Payment>
+@{
+    Layout = "AdminTable";
+    ViewBag.Title = "Payments";
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Payments</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Transaction ID</th>
+                                <th>Payment Type</th>
+                                <th>User ID</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in Model)
+                            {
+                                <tr>
+                                    <td>@payment.Id</td>
+                                    <td>@payment.TransactionId</td>
+                                    <td>@(payment.Type ? "Credit" : "Debit")</td>
+                                    <td>@payment.UserId</td>
+                                    <td>@(payment.Date.HasValue ? payment.Date.Value.ToString("yyyy-MM-dd") : "N/A")</td>
+                                    <td>
+                                        <button class="btn btn-info" onclick="window.location='@Url.Action("EditPayment", "Admin", new { id = payment.Id })'">Edit</button>
+                                        <button class="btn btn-danger" onclick="window.location='@Url.Action("DeletePayment", "Admin", new { id = payment.Id })'">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Transaction ID</th>
+                                <th>Payment Type</th>
+                                <th>User ID</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

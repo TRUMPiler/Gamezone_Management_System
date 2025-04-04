@@ -12,7 +12,7 @@ namespace GameZoneManagementSystem.Controllers
     public class HomeController : Controller
     {
        
-        string con = "Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;";
+        string con = "Data Source=DESKTOP-TN71EG6\\SQLEXPRESS;Initial Catalog=GZMS;Integrated Security=True;";
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController>? logger = null)
@@ -44,7 +44,10 @@ namespace GameZoneManagementSystem.Controllers
             }
             return View();
         }
-
+        public IActionResult Games()
+        {
+            return View();
+        }
         [HttpPost]
         public IActionResult Login(User user)
         {

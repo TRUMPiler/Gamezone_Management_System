@@ -1,0 +1,68 @@
+﻿@model GameZoneManagementSystem.Models.User
+@{
+    Layout = "AdminTable";
+    ViewBag.Title = "Edit User";
+}
+
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <h1>Edit User</h1>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <form method="post" asp-action="UpdateUser">
+                <input type="hidden" name="id" value="@Model.id" />
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" name="Name" value="@Model.Name" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="Email" value="@Model.Email" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" name="Phone" value="@Model.Phone" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select name="Gender" class="form-control" required>
+                                <option value="M" @(Model.Gender == 'M' ? "selected" : "")>Male</option>
+                                <option value="F" @(Model.Gender == 'F' ? "selected" : "")>Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" name="Dob" value="@($"{Model.Dob:yyyy-MM-dd}")" class="form-control" required />
+
+                        </div>
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select name="Role" class="form-control" required>
+                                <option value="1" @(Model.Role == 1 ? "selected" : "")>Admin</option>
+                                <option value="2" @(Model.Role == 2 ? "selected" : "")>Customer</option>
+                                <option value="3" @(Model.Role == 3 ? "selected" : "")>Employee</option>
+                                <option value="4" @(Model.Role == 4 ? "selected" : "")>Manager</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="Status" class="form-control" required>
+                                <option value="true" @(Model.Status ? "selected" : "")>Active</option>
+                                <option value="false" @(!Model.Status ? "selected" : "")>Inactive</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update User</button>
+                        <a href="@Url.Action("Users", "Admin")" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+

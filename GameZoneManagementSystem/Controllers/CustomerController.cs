@@ -19,7 +19,7 @@ namespace GameZoneManagementSystem.Controllers
             }
             return false;
         }
-        SqlConnection con=new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
+        SqlConnection con=new SqlConnection("Data Source=DESKTOP-TN71EG6\\SQLEXPRESS;Initial Catalog=GZMS;Integrated Security=True;");
         String otp = "";
         public Boolean isLoggedin()
         {
@@ -106,13 +106,16 @@ namespace GameZoneManagementSystem.Controllers
             return cmd.ExecuteNonQuery();
             
         }
-
+        public IActionResult Games()
+        {
+            return View();
+        }
         [HttpPost]
         public IActionResult Register(User user)
         {
             HashPasswordController hp = new HashPasswordController();
 
-            using (SqlConnection connection = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;"))
+            using (SqlConnection connection = new SqlConnection("Data Source=DESKTOP-TN71EG6\\SQLEXPRESS;Initial Catalog=GZMS;Integrated Security=True;"))
             {
                 connection.Open();
 
