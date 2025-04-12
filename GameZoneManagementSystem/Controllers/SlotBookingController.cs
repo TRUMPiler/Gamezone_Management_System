@@ -7,8 +7,8 @@ namespace GameZoneManagementSystem.Controllers
 {
     public class SlotBookingController : Controller
     {
-        private readonly string _connectionString = "Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;";
-
+        IConfiguration configuration;
+        SlotBookingController(IConfiguration config) { configuration = config; }
         // Display available slots for booking
         public IActionResult Index(int gameId)
         {
@@ -30,7 +30,7 @@ namespace GameZoneManagementSystem.Controllers
                 LEFT JOIN Tbl_Game_Slot gs ON gs.SlotID = s.ID AND gs.GameID = @GameID
                 WHERE gs.ID IS NULL"; // Only unbooked slots
 
-            using (var con = new SqlConnection(_connectionString))
+            using (var con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 using (var cmd = new SqlCommand(query, con))
                 {
@@ -92,7 +92,7 @@ namespace GameZoneManagementSystem.Controllers
         {
             int userCredits = 0;
 
-            using (var con = new SqlConnection(_connectionString))
+            using (var con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 string query = "SELECT Credits FROM Tbl_User WHERE ID = @UserID";
                 using (var cmd = new SqlCommand(query, con))
@@ -110,7 +110,7 @@ namespace GameZoneManagementSystem.Controllers
         // Deduct credits after booking a slot
         private void DeductCredits(int userId, int creditsRequired)
         {
-            using (var con = new SqlConnection(_connectionString))
+            using (var con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 string query = "UPDATE Tbl_User SET Credits = Credits - @CreditsRequired WHERE ID = @UserID";
                 using (var cmd = new SqlCommand(query, con))
@@ -127,7 +127,7 @@ namespace GameZoneManagementSystem.Controllers
         // Book the game slot in Tbl_Game_Slot
         private void BookGameSlot(int gameId, int slotId)
         {
-            using (var con = new SqlConnection(_connectionString))
+            using (var con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 string query = "INSERT INTO Tbl_Game_Slot (GameID, SlotID) VALUES (@GameID, @SlotID)";
                 using (var cmd = new SqlCommand(query, con))

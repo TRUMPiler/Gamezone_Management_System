@@ -5,6 +5,7 @@ using Org.BouncyCastle.Utilities;
 using GameZoneManagementSystem.Models;
 using System.ComponentModel;
 using System.Data.SqlTypes;
+using System.Configuration;
 
 namespace GameZoneManagementSystem.Controllers
 {
@@ -12,7 +13,9 @@ namespace GameZoneManagementSystem.Controllers
     {
         private readonly string _key = "rzp_test_YpWMzLzMbgtqFk"; // Replace with your Razorpay key
         private readonly string _secret = "lPo9E0pjKqPoCuJqoTDX7yWs"; // Replace with your Razorpay secret
-        public SqlConnection _con = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;");
+        public IConfiguration configuration;
+        public CreditController(IConfiguration config) { configuration = config; }
+        
 
         public IActionResult Index()
         {
@@ -62,7 +65,7 @@ namespace GameZoneManagementSystem.Controllers
                 decimal paymentAmount = 500; // Replace with the actual payment amount logic
 
                 // Insert payment details into the database
-                using (SqlConnection con = _con)
+                using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
                 {
                     con.Open();
 
@@ -138,7 +141,7 @@ namespace GameZoneManagementSystem.Controllers
             //    return false;
             //}
             CurrentDetails.credits = CurrentDetails.credits + credit;
-            using (SqlConnection con = _con)
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
                 string query = @"Update Tbl_Credits set Credits=@Credits where UserID=@Userid";
@@ -163,7 +166,7 @@ namespace GameZoneManagementSystem.Controllers
                 return false;
             }
             CurrentDetails.credits = CurrentDetails.credits-credit;
-            using (SqlConnection con = _con)
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
                 string query = @"Update Tbl_Credits set Credits=@Credits where UserID=@Userid";
@@ -180,6 +183,7 @@ namespace GameZoneManagementSystem.Controllers
         {
 
             Credit g = new Credit();
+            SqlConnection _con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             SqlCommand com = new SqlCommand("Select * from Tbl_Credits where UserId=@userid",_con);
             com.Parameters.AddWithValue("@userid",userid);
             _con.Open();

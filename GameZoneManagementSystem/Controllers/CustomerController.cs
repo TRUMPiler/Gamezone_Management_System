@@ -19,7 +19,12 @@ namespace GameZoneManagementSystem.Controllers
             }
             return false;
         }
-        SqlConnection con=new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;");
+        IConfiguration configuration;
+        public CustomerController(IConfiguration config)
+        {
+            configuration = config;
+        }
+        
         String otp = "";
         public Boolean isLoggedin()
         {
@@ -91,7 +96,7 @@ namespace GameZoneManagementSystem.Controllers
             User user = null;
             string query = "SELECT * FROM Tbl_Users WHERE ID = @ID";
 
-            using (SqlConnection con = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;")) // Ensure you have a valid connection string
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -150,7 +155,7 @@ namespace GameZoneManagementSystem.Controllers
 
         private int updateStatus(bool status,string Email)
         {
-
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             SqlCommand cmd = new SqlCommand("update Tbl_Users set status=@Status where Email=@Email", con);
             cmd.Parameters.AddWithValue("@Status", status);
             cmd.Parameters.AddWithValue("@Email", Email);
@@ -167,7 +172,7 @@ namespace GameZoneManagementSystem.Controllers
         {
             HashPasswordController hp = new HashPasswordController();
 
-            using (SqlConnection connection = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;"))
+            using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 connection.Open();
 
@@ -198,7 +203,7 @@ namespace GameZoneManagementSystem.Controllers
             string query = @"INSERT INTO Tbl_Users 
                          (Name, Dob, Password, Email, Phone, RoleID, Gender, Status) 
                          VALUES (@Name, @Dob, @Password, @Email, @Phone, @Role, @Gender, @Status)";
-
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
                 using (SqlCommand command = new SqlCommand(query, con))
                 {
                     command.Parameters.AddWithValue("@Name", user.Name);

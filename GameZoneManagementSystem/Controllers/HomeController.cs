@@ -2,22 +2,26 @@
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Net;
+using Microsoft.Extensions.Configuration;
 using System.Net.Mail;
 using GameZoneManagementSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Session;
+using static Org.BouncyCastle.Math.EC.ECCurve;
+using System.Configuration;
 
 namespace GameZoneManagementSystem.Controllers
 {
     public class HomeController : Controller
     {
 
-        string con = "Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;";
-        private readonly ILogger<HomeController> _logger;
+        private readonly IConfiguration configuration;
+        
 
-        public HomeController(ILogger<HomeController>? logger = null)
+        public HomeController(IConfiguration config)
         {
-            _logger = logger;
+            
+            configuration = config;
         }
 
         public bool isLoggedIn()
@@ -48,23 +52,109 @@ namespace GameZoneManagementSystem.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public IActionResult ForgetPassword(User user)
+        {
+            HttpContext.Session.SetString("UserEmail", user.Email);
+            OtpController otpcon = new OtpController();
+            string otp = otpcon.SendMail(user.Email, "Forgot Password");
+            HttpContext.Session.SetString("ForgetPasswordotp", otp);
+            return View();
+        }
+        public IActionResult FixPassword()
+        {
+            if(HttpContext.Session.GetString("UserEmail")==null)
+            {
+                string script = "<script>alert('No Password Resetting Token Found');window.location='/Home/Login'</script>";
+                return Content(script, "text/html");
+            }
+            return View();
+        }
         //[HttpPost]
         //public IActionResult ForgetOtp()
         //{
 
         //}
-        
+        [HttpPost]
+        public IActionResult FixPassword(string newPassword, string confirmPassword)
+        {
+            // Retrieve the email from session
+            string userEmail = HttpContext.Session.GetString("UserEmail");
+
+            if (string.IsNullOrEmpty(userEmail)|| string.IsNullOrEmpty(newPassword))
+
+            {
+                string script = "<script>alert('Session expired. Please try again.');window.location='/Home/Forgets'</script>";
+                return Content(script, "text/html");
+            }
+
+            if (!newPassword.Equals(confirmPassword))
+            {
+                string script = "<script>alert('Passwords do not match.');window.location='/Home/FixPassword'</script>";
+                return Content(script, "text/html");
+            }
+            else { 
+
+            // Update the user's password in the database
+            try
+            {
+               
+
+                using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+                {
+                    connection.Open();
+
+                    string updateQuery = "UPDATE Tbl_Users SET Password = @Password WHERE Email = @Email";
+                    using (SqlCommand command = new SqlCommand(updateQuery, connection))
+                    {
+                        HashPasswordController hash = new HashPasswordController();
+
+                        // Hash the password (optional, for security)
+                        string hashedPassword = hash.HashPassword(newPassword);
+
+                        command.Parameters.AddWithValue("@Password", hashedPassword);
+                        command.Parameters.AddWithValue("@Email", userEmail);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+
+                        if (rowsAffected > 0)
+                        {
+                            string successScript = "<script>alert('Password updated successfully. Please log in.');window.location='/Home/Login'</script>";
+                            return Content(successScript, "text/html");
+                        }
+                        else
+                        {
+                            string script = "<script>alert('User not found or update failed.');window.location='/Home/Forgets'</script>";
+                            return Content(script, "text/html");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                string errorScript = $"<script>alert('An error occurred: {ex.Message}');window.location='/Home/FixPassword'</script>";
+                return Content(errorScript, "text/html");
+            }
+            }
+        }
         public IActionResult Forget()
         {
             return View();
         }
-
         [HttpPost]
-        public IActionResult Forgets(User user)
+        public IActionResult VerifyOtp(string Otp)
         {
-            
-            return View();
+            if (Otp.Equals(HttpContext.Session.GetString("ForgetPasswordotp")))
+            {
+                return Json(new { success = true, message = "Otp Verified", redirectUrl = "/Home/FixPassword" });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Otp is Incorrect" });
+            }
         }
+
+
         [HttpPost]
         public IActionResult Login(User user)
         {
@@ -76,7 +166,7 @@ namespace GameZoneManagementSystem.Controllers
             }
 
             string storedHashedPassword = null;
-            using (SqlConnection connection = new SqlConnection(con))
+            using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
 
                 connection.Open();
