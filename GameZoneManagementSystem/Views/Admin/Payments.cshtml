@@ -17,6 +17,7 @@
 
     <section class="content">
         <div class="container-fluid">
+            <a href="c:\users\harsh gandhi\source\repos\gamezone_management_system\gamezonemanagementsystem\views\admin\payments.cshtml">c:\users\harsh gandhi\source\repos\gamezone_management_system\gamezonemanagementsystem\views\admin\payments.cshtml</a>
             <div class="card">
                 <div class="card-body">
                     <table id="example1" class="table table-bordered table-striped">
@@ -25,8 +26,9 @@
                                 <th>ID</th>
                                 <th>Transaction ID</th>
                                 <th>Payment Type</th>
-                                <th>User ID</th>
+                                <th>User Name</th>
                                 <th>Date</th>
+                                <th>Credits</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -37,8 +39,9 @@
                                     <td>@payment.Id</td>
                                     <td>@payment.TransactionId</td>
                                     <td>@(payment.Type ? "Credit" : "Debit")</td>
-                                    <td>@payment.UserId</td>
+                                    <td>@payment.User?.Name</td>
                                     <td>@(payment.Date.HasValue ? payment.Date.Value.ToString("yyyy-MM-dd") : "N/A")</td>
+                                    <td>@payment.Credits</td>
                                     <td>
                                         <button class="btn btn-info" onclick="window.location='@Url.Action("EditPayment", "Admin", new { id = payment.Id })'">Edit</button>
                                         <button class="btn btn-danger" onclick="window.location='@Url.Action("DeletePayment", "Admin", new { id = payment.Id })'">Delete</button>
@@ -51,12 +54,14 @@
                                 <th>ID</th>
                                 <th>Transaction ID</th>
                                 <th>Payment Type</th>
-                                <th>User ID</th>
+                                <th>User Name</th>
                                 <th>Date</th>
+                                <th>Credits</th>
                                 <th>Action</th>
                             </tr>
                         </tfoot>
                     </table>
+
                 </div>
             </div>
         </div>

@@ -8,5 +8,7 @@ namespace GameZoneManagementSystem.Models
         public int id {  get; set; }
         public SqlMoney credits {  get; set; }
         public int userid { get; set; }
+
+        public User User { get; set; }
     }
 }

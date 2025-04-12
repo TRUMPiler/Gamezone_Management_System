@@ -168,6 +168,10 @@
                         <i class="fas fa-th-large"></i>
                     </a>
                 </li>
+           
+                     
+                
+                
                 <li class="nav-item">
                     <button type="button" class="btn btn-danger" onclick="window.location='@Url.Action("Logout","Home")'">Logout</button>
                 </li>
@@ -472,6 +476,45 @@
                                         <p>Tbl_Payments </p>
                                     </a>
                                 </li>
+
+                                <li class="nav-item">
+                                    <a href="@Url.Action("Credit")" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tbl_Credits </p>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="@Url.Action("Payments")" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tbl_Employees </p>
+                                    </a>
+                                </li>
+
+
+                                <li class="nav-item">
+                                    <a href="@Url.Action("Payments")" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tbl_Games_Category </p>
+                                    </a>
+                                </li>
+
+
+
+                                <li class="nav-item">
+                                    <a href="@Url.Action("Payments")" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tbl_Game_Played </p>
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a href="@Url.Action("Payments")" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Tbl_Games_Sub_Category </p>
+                                    </a>
+                                </li>
+
                                 @* <li class="nav-item"> *@
                                 @*     <a href="pages/tables/jsgrid.html" class="nav-link"> *@
                                 @*         <i class="far fa-circle nav-icon"></i> *@
@@ -548,6 +591,12 @@
                                      <a href="@Url.Action("AddGames","Admin")" class="nav-link"> 
                                          <i class="far fa-circle nav-icon"></i> 
                                         <p>Games</p> 
+                                     </a> 
+                                 </li> 
+                                 <li class="nav-item"> 
+                                     <a href="@Url.Action("AddSlot","Admin")" class="nav-link"> 
+                                         <i class="far fa-circle nav-icon"></i> 
+                                        <p>Slot</p> 
                                      </a> 
                                  </li> 
                         @*         <li class="nav-item"> *@

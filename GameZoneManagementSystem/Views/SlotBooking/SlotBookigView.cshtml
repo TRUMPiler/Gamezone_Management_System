@@ -1,0 +1,53 @@
+﻿@model List<GameZoneManagementSystem.Models.SlotViewModel>
+@{
+    ViewBag.Title = "Book Slot";
+}
+
+<h2>Available Slots for Game @ViewBag.GameId</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Message"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model.Count == 0)
+{
+    <p>No slots available for booking.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var slot in Model)
+            {
+                <tr>
+                    <td>@slot.DayName</td>
+                    <td>@slot.TimeSlot</td>
+                    <td>
+                        <form asp-action="BookSlot" method="post">
+                            <input type="hidden" name="gameId" value="@ViewBag.GameId" />
+                            <input type="hidden" name="slotId" value="@slot.SlotID" />
+                            <button type="submit" class="btn btn-primary">Book</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

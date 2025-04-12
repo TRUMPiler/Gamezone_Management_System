@@ -11,8 +11,8 @@ namespace GameZoneManagementSystem.Controllers
 {
     public class HomeController : Controller
     {
-       
-        string con = "Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;";
+
+        string con = "Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;";
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController>? logger = null)
@@ -48,6 +48,23 @@ namespace GameZoneManagementSystem.Controllers
         {
             return View();
         }
+        //[HttpPost]
+        //public IActionResult ForgetOtp()
+        //{
+
+        //}
+        
+        public IActionResult Forget()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Forgets(User user)
+        {
+            
+            return View();
+        }
         [HttpPost]
         public IActionResult Login(User user)
         {
@@ -61,7 +78,7 @@ namespace GameZoneManagementSystem.Controllers
             string storedHashedPassword = null;
             using (SqlConnection connection = new SqlConnection(con))
             {
-                
+
                 connection.Open();
                 string query = "SELECT id,Password, RoleID FROM Tbl_Users WHERE Email = @Email AND Status=@Status";
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -73,10 +90,10 @@ namespace GameZoneManagementSystem.Controllers
                     {
                         if (reader.Read())
                         {
-                            user.id =(int) reader["id"];
+                            user.id = (int)reader["id"];
                             storedHashedPassword = reader["Password"].ToString();
                             user.Role = (int)reader["RoleID"];
-                            
+
                         }
 
                     }
@@ -90,11 +107,11 @@ namespace GameZoneManagementSystem.Controllers
                 HttpContext.Session.SetString("Email", user.Email);
                 HttpContext.Session.SetString("Role", user.Role.ToString());
                 HttpContext.Session.SetString("Userid", user.id.ToString());
-                if(user.Role==1)
+                if (user.Role == 1)
                 {
                     return RedirectToAction("Index", "Admin");
                 }
-                else if(user.Role == 2)
+                else if (user.Role == 2)
                 {
                     return RedirectToAction("Index", "Customer");
                 }
@@ -109,7 +126,8 @@ namespace GameZoneManagementSystem.Controllers
                 return Content(script, "text/html");
             }
         }
-
+       
+       
        
 
         

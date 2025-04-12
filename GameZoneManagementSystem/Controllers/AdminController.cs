@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Plugins;
 using Org.BouncyCastle.Bcpg;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 
 namespace GameZoneManagementSystem.Controllers
 {
     public class AdminController : Controller
     {
        
-        SqlConnection con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
+        SqlConnection con = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;");
         public bool CheckRole()
         {
             int role = 0;
@@ -371,6 +372,43 @@ namespace GameZoneManagementSystem.Controllers
             return View(users);
         }
 
+
+
+        public IActionResult Credit()
+        {
+            List<Credit> credit = new List<Credit>();
+            string query = "SELECT * FROM Tbl_Credits ";
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        Credit credits = new Credit();
+                        credits.id = (int)reader["ID"];
+                        credits.credits = Convert.ToDecimal(reader["Credits"]); // Safe conversion
+                        credits.userid = (int)reader["UserID"];
+                        credit.Add(credits);
+                    }
+                }
+                con.Close();
+            }
+
+            if (!CheckRole())
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(credit);
+
+
+
+        }
+
+
+
+
         public IActionResult Games()
         {
             List<Games> games = new List<Games>();
@@ -404,10 +442,19 @@ namespace GameZoneManagementSystem.Controllers
         public IActionResult Payments()
         {
             List<Payment> payments = new List<Payment>();
+
             string query = @"
-        SELECT p.ID, p.TransactionID, p.Type, p.UserID, p.Date, u.Name AS UserName 
-        FROM Tbl_Payments p
-        INNER JOIN Tbl_Users u ON p.UserID = u.ID";
+SELECT 
+    p.ID, 
+    p.TransactionID, 
+    p.Type, 
+    p.UserID, 
+    p.Date, 
+    u.Name AS UserName, 
+    ISNULL(c.Credits, 0) AS Credits
+FROM Tbl_Payments p
+INNER JOIN Tbl_Users u ON p.UserID = u.ID
+LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
 
             using (SqlCommand command = new SqlCommand(query, con))
             {
@@ -416,12 +463,19 @@ namespace GameZoneManagementSystem.Controllers
                 {
                     while (reader.Read())
                     {
-                        Payment payment = new Payment();
-                        payment.Id = (int)reader["ID"];
-                        payment.TransactionId = reader["TransactionID"].ToString();
-                        payment.Type = (bool)reader["Type"];
-                        payment.UserId = (int)reader["UserID"];
-                        payment.Date = reader["Date"] != DBNull.Value ? (DateTime?)reader["Date"] : null;
+                        Payment payment = new Payment
+                        {
+                            Id = (int)reader["ID"],
+                            TransactionId = reader["TransactionID"].ToString(),
+                            Type = (bool)reader["Type"],
+                            UserId = (int)reader["UserID"],
+                            Date = reader["Date"] != DBNull.Value ? (DateTime?)reader["Date"] : null,
+                            User = new User
+                            {
+                                Name = reader["UserName"].ToString()
+                            },
+                            Credits = Convert.ToDecimal(reader["Credits"])
+                        };
 
                         payments.Add(payment);
                     }

@@ -11,7 +11,12 @@ namespace GameZoneManagementSystem.Models
         public string TransactionId { get; set; } 
         public bool Type { get; set; } 
         public int UserId { get; set; } 
-        public DateTime? Date { get; set; } 
-        public User User { get; set; } 
+        public DateTime? Date { get; set; }
+        public User User { get; set; }     // Holds User.Name
+        public decimal Credits { get; set; }
+
+
+
+
     }
 }

@@ -1,0 +1,60 @@
+﻿@model GameZoneManagementSystem.Models.User
+
+@{
+    Layout = "TestLayout";
+    ViewBag.Title = "Customer Profile";
+}
+
+<h1 class="text-center">Customer Profile</h1>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Profile Details
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Full Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Phone</dt>
+                <dd class="col-sm-9">@Model.Phone</dd>
+
+                <dt class="col-sm-3">Gender</dt>
+                <dd class="col-sm-9">@Model.Gender</dd>
+
+                @* <dt class="col-sm-3">Date of Birth</dt> *@
+                @* <dd class="col-sm-9">@Model.Dob.ToShortDateString()</dd> *@
+
+                <dt class="col-sm-3">Role</dt>
+                <dd class="col-sm-9">
+                    @{
+                        var roleName = Model.Role switch
+                        {
+                            1 => "Admin",
+                            2 => "Customer",
+                            3 => "Employee",
+                            _ => "Unknown"
+                        };
+                        @roleName
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Status)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactive</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>

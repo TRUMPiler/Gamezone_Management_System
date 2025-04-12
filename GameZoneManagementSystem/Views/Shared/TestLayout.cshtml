@@ -8,33 +8,33 @@
 	<meta name="description" content="EndGam Gaming Magazine Template">
 	<meta name="keywords" content="endGam,gGaming, magazine, html">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
+
 	<!-- Favicon -->
 	<link href="~/img/favicon.ico" rel="shortcut icon" />
 	<!--Login css-->
 
 	<!--===============================================================================================-->	
 	<link rel="icon" type="image/png" href="~/img/images/icons/favicon.ico"/>
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/vendor/bootstrap/css/bootstrap.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/vendor/animate/animate.css">
-<!--===============================================================================================-->	
+	<!--===============================================================================================-->	
 	<link rel="stylesheet" type="text/css" href="~/vendor/css-hamburgers/hamburgers.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/vendor/animsition/css/animsition.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/vendor/select2/select2.min.css">
-<!--===============================================================================================-->	
+	<!--===============================================================================================-->	
 	<link rel="stylesheet" type="text/css" href="~/vendor/daterangepicker/daterangepicker.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="~/css/util.css">
 	<link rel="stylesheet" type="text/css" href="~/css/main.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<!-- Google Font -->
 	<link href="https://fonts.googleapis.com/css?family=Roboto:400,400i,500,500i,700,700i,900,900i" rel="stylesheet">
 	<script src="~/js/BackButton.js"></script>
@@ -53,8 +53,8 @@
 
 
 	<!--[if lt IE 9]>
-		  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-	  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 	<![endif]-->
 
 </head>
@@ -82,16 +82,17 @@
 				</a>
 				<nav class="top-nav-area w-100">
 					<div class="user-panel">
-						
+
 						@if(HttpContextAccessor.HttpContext.Session.GetString("Login")==null)
 						{
-							
+
 							<a href="/Home/Login">Login</a> <a>/</a> <a href="/Customer/Register">Register</a>
 						}
 						else
 						{
 							<a href="@Url.Action("Logout","Home")">Log out</a>
 						}
+
 					</div>
 					<!-- Menu -->
 					<ul class="main-menu primary-menu">
@@ -106,6 +107,13 @@
 						@* <li><a href="review.html">Reviews</a></li> *@
 						@* <li><a href="blog.html">News</a></li> *@
 						<li><a href="">Contact</a></li>
+
+						
+						@if (HttpContextAccessor.HttpContext.Session.GetString("Login") != null)
+						{
+							<li><a href="@Url.Action("", "")">Book Slot</a></li>
+							<li><a href="@Url.Action("Profile", "Customer")">Profile</a></li>
+						}
 					</ul>
 				</nav>
 			</div>
@@ -315,6 +323,8 @@
 			<ul class="main-menu footer-menu">
 				<li><a href="@Url.Action("Index","Customer")">Home</a></li>
 				<li><a href="">Games</a></li>
+				<li><a href="">Book Slot</a></li>
+				<li><a href="">Add Credit</a></li>
 				<li><a href="">Contact</a></li>
 			</ul>
 			<div class="footer-social d-flex justify-content-center">

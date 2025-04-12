@@ -10,5 +10,6 @@ namespace GameZoneManagementSystem.Controllers
         {
             return RedirectToAction("Index", "Home");
         }
+
     }
 }

@@ -12,7 +12,7 @@ namespace GameZoneManagementSystem.Controllers
     {
         private readonly string _key = "rzp_test_YpWMzLzMbgtqFk"; // Replace with your Razorpay key
         private readonly string _secret = "lPo9E0pjKqPoCuJqoTDX7yWs"; // Replace with your Razorpay secret
-        public SqlConnection _con = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
+        public SqlConnection _con = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;");
 
         public IActionResult Index()
         {

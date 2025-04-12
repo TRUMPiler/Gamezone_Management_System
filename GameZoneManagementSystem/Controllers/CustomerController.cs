@@ -19,7 +19,7 @@ namespace GameZoneManagementSystem.Controllers
             }
             return false;
         }
-        SqlConnection con=new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;");
+        SqlConnection con=new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;");
         String otp = "";
         public Boolean isLoggedin()
         {
@@ -74,7 +74,59 @@ namespace GameZoneManagementSystem.Controllers
             }
             //return View();
         }
-       
+
+
+
+        
+        public IActionResult Profile()
+        {
+            int userId = Int32.Parse(HttpContext.Session.GetString("Userid") ?? "0");
+
+            if (userId == 0)
+            {
+                string script = "<script>alert('User id not found');window.location='/Home/Index'</script>";
+                return Content(script, "text/html");
+            }
+
+            User user = null;
+            string query = "SELECT * FROM Tbl_Users WHERE ID = @ID";
+
+            using (SqlConnection con = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;")) // Ensure you have a valid connection string
+            {
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@ID", userId);
+                    con.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            user = new User
+                            {
+                                id = (int)reader["ID"],
+                                Name = reader["Name"].ToString(),
+                                Email = reader["Email"].ToString(),
+                                Phone = reader["Phone"].ToString(),
+                                Gender = Convert.ToChar(reader["Gender"]),
+                                Dob = reader["DOB"] != DBNull.Value ? (DateTime?)reader["DOB"] : null, // Handling nullable DateTime
+                                Role = (int)reader["RoleID"],
+                                Status = (bool)reader["Status"]
+                            };
+                        }
+                    }
+                }
+            }
+
+            return View(user);
+        }
+
+
+
+
+
+
+
         public IActionResult Register()
         {
             if(isLoggedin())
@@ -115,7 +167,7 @@ namespace GameZoneManagementSystem.Controllers
         {
             HashPasswordController hp = new HashPasswordController();
 
-            using (SqlConnection connection = new SqlConnection("Data Source=NAISHALTUF;Initial Catalog=GZMS;Integrated Security=True;"))
+            using (SqlConnection connection = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;"))
             {
                 connection.Open();
 
@@ -166,6 +218,8 @@ namespace GameZoneManagementSystem.Controllers
                         HttpContext.Session.SetString("Email", user.Email);
                         otp = otpcon.SendMail(user.Email, "Verify Email");
                         HttpContext.Session.SetString("otp", otp);
+
+
 
                         string script = "<script>alert('User registered successfully!');window.location='/Customer/Otp';</script>";
                     con.Close();
