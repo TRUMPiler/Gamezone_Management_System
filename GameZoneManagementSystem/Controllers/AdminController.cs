@@ -12,8 +12,8 @@ namespace GameZoneManagementSystem.Controllers
 {
     public class AdminController : Controller
     {
-       
-        SqlConnection con = new SqlConnection("Data Source=LAPTOP-10JM7RHJ\\MSSQLSERVER01;Initial Catalog=GZMS;Integrated Security=True;");
+
+        
         public bool CheckRole()
         {
             int role = 0;
@@ -37,6 +37,7 @@ namespace GameZoneManagementSystem.Controllers
         {
             configuration = config;
         }
+        
         // GET: AdminController
         public ActionResult Index()
         {
@@ -48,6 +49,7 @@ namespace GameZoneManagementSystem.Controllers
         }
         public List<Games_Category> GetGameCategories()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Games_Category> categories = new List<Games_Category>();
             using (SqlCommand com = new SqlCommand("Select * from Tbl_Games_Category", con))
             {
@@ -69,6 +71,7 @@ namespace GameZoneManagementSystem.Controllers
 
         public List<Games_Sub_Category> games_Sub_Categories()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Games_Sub_Category> games=new List<Games_Sub_Category>();
             using (SqlCommand com = new SqlCommand("Select * from Tbl_Games_Sub_Category", con))
             {
@@ -93,6 +96,7 @@ namespace GameZoneManagementSystem.Controllers
         }
         public List<Games_Sub_Category> GetSubCategoriesWithCategoryName()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Games_Sub_Category> subCategories = new List<Games_Sub_Category>();
             using (SqlCommand com = new SqlCommand(
                 "SELECT sub.ID, sub.Sub_Category_Name, sub.CategoryID, cat.CategoryName " +
@@ -122,6 +126,7 @@ namespace GameZoneManagementSystem.Controllers
         [HttpPost]
         public IActionResult UpdateUser(User user)
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             if (user.id == 0)
             {
                 return Content("<script>alert('User ID is missing'); window.location.href='/Admin/Users';</script>", "text/html");
@@ -161,7 +166,8 @@ namespace GameZoneManagementSystem.Controllers
         }
         public ActionResult Deactive(int userid = 0)
         {
-            if(userid==0)
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+            if (userid==0)
             {
 
                 return View("Index");
@@ -178,6 +184,7 @@ namespace GameZoneManagementSystem.Controllers
         }
         public ActionResult Active(int userid = 0)
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             if (userid == 0)
             {
 
@@ -253,7 +260,7 @@ namespace GameZoneManagementSystem.Controllers
             }
 
             // Insert data into the database
-            using (SqlConnection connection =con)
+            using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 connection.Open();
                 SqlTransaction transaction = connection.BeginTransaction();
@@ -309,7 +316,7 @@ namespace GameZoneManagementSystem.Controllers
 
             User user = null;
             string query = "SELECT * FROM Tbl_Users WHERE ID = @id";
-
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             using (SqlCommand command = new SqlCommand(query, con))
             {
                 command.Parameters.AddWithValue("@id", id);
@@ -485,6 +492,7 @@ namespace GameZoneManagementSystem.Controllers
 
         public IActionResult Users()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<User> users = new List<User>();
             string query = "SELECT * FROM Tbl_Users";
             using (SqlCommand command = new SqlCommand(query, con))
@@ -521,6 +529,7 @@ namespace GameZoneManagementSystem.Controllers
 
         public IActionResult Credit()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Credit> credit = new List<Credit>();
             string query = "SELECT * FROM Tbl_Credits ";
             using (SqlCommand command = new SqlCommand(query, con))
@@ -556,6 +565,7 @@ namespace GameZoneManagementSystem.Controllers
 
         public IActionResult Games()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Games> games = new List<Games>();
             string query = "SELECT g.ID, g.Game, g.Game_Description, g.SubCatID, g.Image, p.Credits " +
                            "FROM Tbl_Game g " +
@@ -600,7 +610,7 @@ SELECT
 FROM Tbl_Payments p
 INNER JOIN Tbl_Users u ON p.UserID = u.ID
 LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
-
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             using (SqlCommand command = new SqlCommand(query, con))
             {
                 con.Open();
@@ -639,7 +649,7 @@ LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
         //Add Slot
 
         public IActionResult AddSlot()
-        {
+        {;
             AddSlotViewModel viewModel = new AddSlotViewModel
             {
                 Games = new List<Games>(),
@@ -647,7 +657,7 @@ LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
                 TimeSlots = new List<TimeSlotModel>()
             };
 
-            using (SqlConnection con = this.con)
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
 
@@ -704,9 +714,10 @@ LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
         [HttpPost]
         public IActionResult AddSlot(int GameID, int DayID, int TimeSlotID)
         {
+
             int slotID;
 
-            using (SqlConnection con = this.con)
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
 

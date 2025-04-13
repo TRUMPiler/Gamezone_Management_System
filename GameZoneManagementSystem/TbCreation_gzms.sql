@@ -66,8 +66,9 @@
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Games
 		Game VARCHAR(20) NOT NULL, -- Game name
 		Game_Description VARCHAR(200) NOT NULL, -- Game description
-		SubCatID INT NOT NULL, -- FK to Tbl_Area
+		SubCatID INT NOT NULL, 
 		Image VARCHAR(200) NOT NULL, -- Image URL or path
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Game_Branch FOREIGN KEY (SubCatID) REFERENCES Tbl_Games_Sub_Category(ID)
 	);
 
@@ -124,6 +125,37 @@
 	insert into Tbl_Role(Role) values('C');
 	insert into Tbl_Role(Role) values('E');
 	insert into Tbl_Role(Role) values('M');
+	insert into Tbl_Day(Day) values('Monday');
+	insert into Tbl_Day(Day) values('Tuesday');
+	insert into Tbl_Day(Day) values('Wednesday');
+	insert into Tbl_Day(Day) values('Thursday');
+	insert into Tbl_Day(Day) values('Friday');
+	insert into Tbl_Day(Day) values('Saturday');
+	insert into Tbl_Day(Day) values('Sunday');
+	INSERT INTO Tbl_Time (Start_Time, End_Time) VALUES 
+('10:00:00', '10:30:00'),
+('10:30:00', '11:00:00'),
+('11:00:00', '11:30:00'),
+('11:30:00', '12:00:00'),
+('12:00:00', '12:30:00'),
+('12:30:00', '13:00:00'),
+('13:00:00', '13:30:00'),
+('13:30:00', '14:00:00'),
+('14:00:00', '14:30:00'),
+('14:30:00', '15:00:00'),
+('15:00:00', '15:30:00'),
+('15:30:00', '16:00:00'),
+('16:00:00', '16:30:00'),
+('16:30:00', '17:00:00'),
+('17:00:00', '17:30:00'),
+('17:30:00', '18:00:00'),
+('18:00:00', '18:30:00'),
+('18:30:00', '19:00:00'),
+('19:00:00', '19:30:00'),
+('19:30:00', '20:00:00'),
+('20:00:00', '20:30:00'),
+('20:30:00', '21:00:00');
+
 	insert into Tbl_Users(Name,DOB,Password,Email,Phone,Gender,RoleID,Status) values('Varun Dhankhara','08-09-2004','4d1523191588e66ee85ff4c3d707040aa24762d7633fd19e4b2cf08056bb37f9','22bmiit031@gmail.com','9773472368','M',1,1);
 	insert into Tbl_Games_Category(CategoryName) VALUES('Indoor')
 	insert into Tbl_Games_Sub_Category(CategoryID,Sub_Category_Name) VALUES(1,'Arcade');

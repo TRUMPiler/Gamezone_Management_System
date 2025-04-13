@@ -1,78 +1,58 @@
 ﻿@{
 
 }
+@using GameZoneManagementSystem.Models;
 @model List<GameZoneManagementSystem.Models.Games>
-@{
-    Layout = "AdminTable";
-    ViewBag.Title = "Games";
-}
-<div class="content-wrapper">
-    <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1>Games</h1>
-                </div>
-            </div>
-        </div>
-    </section>
+<section class="intro-section"></section>
+<section class="blog-section spad">
+	<div class="container">
+		<div class="row">
+			<div class="col-xl-9 col-lg-8 col-md-7">
+				<div class="text-white"><h3>Games</h3></div>
+				<!-- Blog item -->
+				@if(Model.Count==0)
+				{
+					<div class="blog-item">
+						<div class="blog-text text-box text-white">
+							<h3> Sorry Seems Like there is No Game at this Game Center Yet</h3>
+						</div>
+					</div>
+				}
+				@foreach (var game in Model)
+				{
+					<div class="blog-item">
+						<div class="blog-thumb">
+							 
+							<img src="@game.image" alt="">
+						</div>
+						<div class="blog-text text-box text-white">
+							
+							@* <div class="top-meta">11.11.18  /  in <a href="">@game.Name</a></div> *@
+							<h3>@game.Name</h3>
+							<p>Description:	@game.Game_Description</p>
+							<div class="top-meta">Credits to Play <h4>@game.price.ToString("F0")</h4></div>
+							<h6>@game.SubCategory.CategoryName / @game.SubCategory.Sub_Category_Name</h6>
+							<a href="#" class="read-more">Book Slot  <img src="~/img/icons/double-arrow.png" alt="#"></a>
+						</div>
+					</div>
+					<!-- Blog item -->
 
-    <section class="content">
-        <div class="container-fluid">
-            <div class="card">
-                <div class="card-body">
-                    <table id="example1" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Category ID</th>
-                                <th>Subcategory ID</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var game in Model)
-                            {
-                                <tr>
-                                    <td>@game.Id</td>
-                                    <td>@game.Name</td>
-                                    <td>@game.Description</td>
-                                    <td>@game.CategoryId</td>
-                                    <td>@game.SubCategoryId</td>
-                                    <td>
-                                        @(game.Status ? "Active" : "Inactive")
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-info" onclick="window.location='@Url.Action("EditGame", "Admin", new { id = game.Id })'">Edit</button>
-                                        @if (game.Status)
-                                        {
-                                            <button class="btn btn-danger" onclick="window.location='@Url.Action("DeactivateGame", "Admin", new { id = game.Id })'">Deactivate</button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-success" onclick="window.location='@Url.Action("ActivateGame", "Admin", new { id = game.Id })'">Activate</button>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Category ID</th>
-                                <th>Subcategory ID</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
+					<!-- Blog item -->
+				}
+			</div>
+			<div class="col-xl-3 col-lg-4 col-md-5 sidebar">
+				<div id="stickySidebar" class="is-affixed" style="height: 1402px; position: relative;">
+					<div class="inner-wrapper-sticky" style="position: relative; transform: translate3d(0px, 2px, 0px);">
+				
+						
+						<div class="widget-item">
+							<a href="#" class="add">
+								<img src="~/img/add.jpg" alt="">
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

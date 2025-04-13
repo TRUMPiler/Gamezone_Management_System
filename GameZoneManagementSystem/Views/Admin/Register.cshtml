@@ -26,27 +26,27 @@
             <form asp-action="Register" asp-controller="Admin" method="post">
                 <div class="form-group">
                     <label asp-for="Name">Name</label>
-                    <input asp-for="Name" class="form-control" required />
+                    <input asp-for="Name" name="Name" class="form-control" required />
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Email">Email</label>
-                    <input asp-for="Email" type="email" class="form-control" required />
+                    <input asp-for="Email" type="email" name="Email" class="form-control" required />
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Phone">Phone</label>
-                    <input asp-for="Phone" class="form-control" required />
+                    <input asp-for="Phone" class="form-control" name="Phone" required />
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Password">Password</label>
-                    <input asp-for="Password" type="password" class="form-control" required />
+                    <input asp-for="Password" type="password" name="Password" class="form-control" required />
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Dob">Date of Birth</label>
-                    <input asp-for="Dob" type="date" class="form-control" />
+                    <input asp-for="Dob" type="date" name="Dob" class="form-control" />
                 </div>
 
                 <div class="form-group">
@@ -57,9 +57,9 @@
 
                 <div class="form-group">
                     <label asp-for="Role">Role</label>
-                    <select asp-for="Role" class="form-control" required>
-                        <option value="1">Admin</option>
-                        <option value="3">Employee</option>
+                    <select asp-for="Role" name="Role" class="form-control" required>
+                        <option value="2">Customer</option>
+                        <option value="3">Staff</option>
                     </select>
                 </div>
 

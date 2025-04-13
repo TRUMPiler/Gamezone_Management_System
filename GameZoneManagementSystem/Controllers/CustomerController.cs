@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using GameZoneManagementSystem.Controllers;
 using System.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SlotBookingApp.Models;
 namespace GameZoneManagementSystem.Controllers
 {
     public class CustomerController : Controller
@@ -241,14 +242,76 @@ namespace GameZoneManagementSystem.Controllers
         }
         public IActionResult Games()
         {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Games> games = new List<Games>();
-            string query = "select * from Tbl_Games where Status=1";
-            using (SqlCommand cmd = new SqlCommand(query, con))
-            {
 
+            string query = @"
+        SELECT 
+    g.ID AS GameID, 
+    g.Game, 
+    g.Game_Description, 
+    g.SubCatID, 
+    g.Image, 
+    p.Credits, 
+    sc.Sub_Category_Name, 
+    sc.CategoryID, -- Ensure this column is included
+    c.CategoryName, 
+    gs.ID AS GameSlotID, 
+    gs.GameID, 
+    s.DayID, 
+    s.TimeID
+FROM Tbl_Game g
+LEFT JOIN Tbl_Price p ON g.ID = p.GameID
+LEFT JOIN Tbl_Games_Sub_Category sc ON g.SubCatID = sc.ID
+LEFT JOIN Tbl_Games_Category c ON sc.CategoryID = c.ID -- Ensure proper join
+LEFT JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID
+LEFT JOIN Tbl_Slot s ON gs.SlotID = s.ID
+where g.Status=1;
+";
+
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        // Create the game object
+                        Games game = new Games
+                        {
+                            Id = (int)reader["GameID"],
+                            Name = (string)reader["Game"],
+                            Game_Description = (string)reader["Game_Description"],
+                            image = (string)reader["Image"],
+                            price = reader["Credits"] != DBNull.Value ? (decimal)reader["Credits"] : 0,
+
+                            // Create and assign SubCategory object
+                            SubCategory = new Games_Sub_Category
+                            {
+                                ID = (int)reader["SubCatID"],
+                                Sub_Category_Name = (string)reader["Sub_Category_Name"],
+                                CategoryID = (int)reader["CategoryID"],
+                                CategoryName = (string)reader["CategoryName"]
+                            },
+
+                            // Create and assign Slot object if slot details exist
+                            Slot = reader["GameSlotID"] != DBNull.Value ? new GameSlot
+                            {
+                                Id = (int)reader["GameSlotID"],
+                                GameName = (string)reader["Game"], // Using game name from parent
+                                SlotTime = new DateTime((int)reader["DayID"], 1, 1) // Placeholder
+                                                                                    // Map `DayID` and `TimeID` to a proper `DateTime` if needed
+                            } : null
+                        };
+
+                        games.Add(game);
+                    }
+                }
             }
-            return View();
+            con.Close();
+            return View(games);
         }
+
 
         [HttpPost]
         public IActionResult Register(User user)
