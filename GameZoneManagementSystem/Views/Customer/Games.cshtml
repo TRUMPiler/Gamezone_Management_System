@@ -1,53 +1,78 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+
 }
-<section class="hero-section overflow-hidden">
-	
-</section>
-<div class="col-xl-3 col-lg-4 col-md-5 sidebar">
-	<div id="stickySidebar">
-		<div class="widget-item">
-			<h4 class="widget-title">Trending</h4>
-			<div class="trending-widget">
-				<div class="tw-item">
-					<div class="tw-thumb">
-						<img src="~/img/blog-widget/1.jpg" alt="#">
-					</div>
-					<div class="tw-text">
-						<div class="tw-meta">11.11.18  /  in <a href="">Games</a></div>
-						<h5>The best online game is out now!</h5>
-					</div>
-				</div>
-				<div class="tw-item">
-					<div class="tw-thumb">
-						<img src="~/img/blog-widget/2.jpg" alt="#">
-					</div>
-					<div class="tw-text">
-						<div class="tw-meta">11.11.18  /  in <a href="">Games</a></div>
-						<h5>The best online game is out now!</h5>
-					</div>
-				</div>
-				<div class="tw-item">
-					<div class="tw-thumb">
-						<img src="~/img/blog-widget/3.jpg" alt="#">
-					</div>
-					<div class="tw-text">
-						<div class="tw-meta">11.11.18  /  in <a href="">Games</a></div>
-						<h5>The best online game is out now!</h5>
-					</div>
-				</div>
-				<div class="tw-item">
-					<div class="tw-thumb">
-						<img src="~/img/blog-widget/4.jpg" alt="#">
-					</div>
-					<div class="tw-text">
-						<div class="tw-meta">11.11.18  /  in <a href="">Games</a></div>
-						<h5>The best online game is out now!</h5>
-					</div>
-				</div>
-			</div>
-		</div>
-		</div>
+@model List<GameZoneManagementSystem.Models.Games>
+@{
+    Layout = "AdminTable";
+    ViewBag.Title = "Games";
+}
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Games</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Category ID</th>
+                                <th>Subcategory ID</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var game in Model)
+                            {
+                                <tr>
+                                    <td>@game.Id</td>
+                                    <td>@game.Name</td>
+                                    <td>@game.Description</td>
+                                    <td>@game.CategoryId</td>
+                                    <td>@game.SubCategoryId</td>
+                                    <td>
+                                        @(game.Status ? "Active" : "Inactive")
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-info" onclick="window.location='@Url.Action("EditGame", "Admin", new { id = game.Id })'">Edit</button>
+                                        @if (game.Status)
+                                        {
+                                            <button class="btn btn-danger" onclick="window.location='@Url.Action("DeactivateGame", "Admin", new { id = game.Id })'">Deactivate</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-success" onclick="window.location='@Url.Action("ActivateGame", "Admin", new { id = game.Id })'">Activate</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Category ID</th>
+                                <th>Subcategory ID</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>

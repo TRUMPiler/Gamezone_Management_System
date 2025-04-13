@@ -17,10 +17,8 @@
   <ItemGroup>
     <None Remove="Controllers\NewFile.txt" />
     <None Remove="Controllers\staffC" />
-    <None Remove="Models\NewFile.txt" />
     <None Remove="Views\Admin\Index.html" />
     <None Remove="Views\Admin\NewFile.txt" />
-    <None Remove="Views\Customer\NewFile.txt" />
     <None Remove="Views\Gameslot\NewFile.txt" />
     <None Remove="Views\Home\NewFile.txt" />
     <None Remove="Views\Shared\NewFile.txt" />

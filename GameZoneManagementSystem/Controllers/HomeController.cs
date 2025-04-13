@@ -48,10 +48,41 @@ namespace GameZoneManagementSystem.Controllers
             }
             return View();
         }
-        public IActionResult Games()
-        {
-            return View();
-        }
+    //    public IActionResult Games()
+    //        {
+    //            List<Games> games = new List<Games>();
+
+    //        string query = @"
+    //SELECT G.ID, G.Game AS Name, G.Game_Description, G.SubCatID, G.Image, 
+    //       ISNULL(P.Credits, 0) AS Price
+    //FROM Tbl_Game G
+    //LEFT JOIN Tbl_Price P ON G.ID = P.GameID";
+
+    //        using (SqlCommand cmd = new SqlCommand(query, con))
+    //        {
+    //            con.Open();
+    //            using (SqlDataReader reader = cmd.ExecuteReader())
+    //            {
+    //                while (reader.Read())
+    //                {
+    //                    Games game = new Games();
+    //                    game.Id = (int)reader["ID"];
+    //                    game.Name = reader["Name"].ToString();
+    //                    game.Game_Description = reader["Game_Description"].ToString();
+    //                    game.SubCatID = (int)reader["SubCatID"];
+    //                    game.image = reader["Image"].ToString();
+    //                    game.price = Convert.ToDecimal(reader["Price"]);
+
+    //                    games.Add(game);
+    //                }
+    //            }
+    //            con.Close();
+    //        }
+
+    //        return View(games);
+
+    //    }
+
         [HttpPost]
         public IActionResult ForgetPassword(User user)
         {
@@ -204,6 +235,10 @@ namespace GameZoneManagementSystem.Controllers
                 else if (user.Role == 2)
                 {
                     return RedirectToAction("Index", "Customer");
+                }
+                else if (user.Role == 3)
+                {
+                    return RedirectToAction("Index", "Staff");
                 }
                 else
                 {

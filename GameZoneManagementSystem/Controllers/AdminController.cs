@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol.Plugins;
 using Org.BouncyCastle.Bcpg;
+using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using static System.Net.WebRequestMethods;
 
 namespace GameZoneManagementSystem.Controllers
 {
@@ -29,6 +31,11 @@ namespace GameZoneManagementSystem.Controllers
                 return false;
             }
             return true;
+        }
+        IConfiguration configuration;
+        public AdminController(IConfiguration config)
+        {
+            configuration = config;
         }
         // GET: AdminController
         public ActionResult Index()
@@ -336,7 +343,145 @@ namespace GameZoneManagementSystem.Controllers
             return View(user); // Pass user to the view
         }
 
+        //---------------------------------------------------------------------------------------
 
+        //public IActionResult register()
+        //{
+
+        //    if (string.IsNullOrEmpty(User.Email) || string.IsNullOrEmpty(User.Phone))
+        //    {
+        //        TempData["Error"] = "Email or Phone cannot be empty.";
+        //        return RedirectToAction("Register");
+        //    }
+
+        //    using (SqlConnection con = new SqlConnection(this.configuration.GetConnectionString("DefaultConnection")))
+        //    {
+        //        con.Open();
+
+        //        string checkQuery = "SELECT COUNT(*) FROM Tbl_Users WHERE Email = @Email OR Phone = @Phone";
+        //        using (SqlCommand checkCmd = new SqlCommand(checkQuery, con))
+        //        {
+        //            checkCmd.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = User.Email;
+        //            checkCmd.Parameters.Add("@Phone", SqlDbType.NVarChar, 15).Value = user.Phone;
+
+        //            int count = (int)checkCmd.ExecuteScalar();
+        //            if (count > 0)
+        //            {
+        //                TempData["Error"] = "User already exists with this Email or Phone.";
+        //                return RedirectToAction("Register");
+        //            }
+        //        }
+
+        //        string insertQuery = @"INSERT INTO Tbl_Users 
+        //(Name, DOB, Password, Email, Phone, RoleID, Gender, Status)
+        //VALUES (@Name, @Dob, @Password, @Email, @Phone, @RoleID, @Gender, @Status)";
+
+        //        using (SqlCommand cmd = new SqlCommand(insertQuery, con))
+        //        {
+        //            cmd.Parameters.AddWithValue("@Name", User.Name);
+        //            cmd.Parameters.AddWithValue("@Dob", user.Dob ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@Password", hp.HashPassword(user.Password));
+        //            cmd.Parameters.AddWithValue("@Email", user.Email ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@Phone", user.Phone ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@RoleID", user.Role);
+        //            cmd.Parameters.AddWithValue("@Gender", user.Gender);
+        //            cmd.Parameters.AddWithValue("@Status", user.Status);
+
+        //            int rows = cmd.ExecuteNonQuery();
+        //            if (rows > 0)
+        //            {
+        //                TempData["Success"] = "User registered successfully.";
+        //                return RedirectToAction("Users");
+        //            }
+        //            else
+        //            {
+        //                TempData["Error"] = "Registration failed.";
+        //                return RedirectToAction("Register");
+        //            }
+        //        }
+        //    }
+
+
+        //}
+
+        //------------------------------------------varun---------------------------------
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult Register(User user)
+{
+    // Check if the email or phone already exists in the database
+    using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+    {
+        connection.Open();
+
+        string checkUserQuery = @"SELECT COUNT(*) FROM Tbl_Users WHERE Email = @Email OR Phone = @Phone";
+        using (SqlCommand checkCommand = new SqlCommand(checkUserQuery, connection))
+        {
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Phone))
+            {
+                // Handle the case where email or phone is null or empty
+                return BadRequest("Email or Phone cannot be empty.");
+            }
+
+            checkCommand.Parameters.Add("@Email", SqlDbType.NVarChar, 255).Value = user.Email;
+            checkCommand.Parameters.Add("@Phone", SqlDbType.NVarChar, 15).Value = user.Phone;
+
+            int userCount = (int)checkCommand.ExecuteScalar();
+            if (userCount > 0)
+            {
+                // If the user already exists, redirect with a message
+                string script = "<script>alert('You are already registered with this email or phone.');window.location='/Admin/Register';</script>";
+                return Content(script, "text/html");
+            }
+        }
+    }
+
+    // Proceed with registration if email/phone are unique
+    string query = @"INSERT INTO Tbl_Users 
+                     (Name, Dob, Password, Email, Phone, RoleID, Gender, Status) 
+                     VALUES (@Name, @Dob, @Password, @Email, @Phone, @Role, @Gender, @Status)";
+
+    using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+    using (SqlCommand command = new SqlCommand(query, con))
+    {
+        // Add parameters to the SQL command
+        command.Parameters.AddWithValue("@Name", user.Name);
+        command.Parameters.AddWithValue("@Dob", user.Dob ?? (object)DBNull.Value);
+
+        var hashedPassword = new HashPasswordController().HashPassword(user.Password);
+        command.Parameters.AddWithValue("@Password", hashedPassword);
+        command.Parameters.AddWithValue("@Email", user.Email ?? (object)DBNull.Value);
+        command.Parameters.AddWithValue("@Phone", user.Phone ?? (object)DBNull.Value);
+        command.Parameters.AddWithValue("@Role", user.Role); // 1 for Admin, 3 for Staff
+        command.Parameters.AddWithValue("@Gender", user.Gender);
+        command.Parameters.AddWithValue("@Status", true); // Active by default
+
+        // Open the connection and execute the insert
+        con.Open();
+        int rowsAffected = command.ExecuteNonQuery();
+        
+        if (rowsAffected > 0)
+        {
+            // Redirect to the users list or show success message
+            string script = "<script>alert('User registered successfully!');window.location='/Admin/Users';</script>";
+            return Content(script, "text/html");
+        }
+        else
+        {
+            // Registration failed
+            string script = "<script>alert('User registration failed!');window.location='/Admin/Register';</script>";
+            return Content(script, "text/html");
+        }
+    }
+}
+
+
+
+
+        //------------------------------------------------------------------------------------------
 
         public IActionResult Users()
         {

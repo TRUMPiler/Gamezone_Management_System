@@ -1,0 +1,70 @@
+﻿@{
+    Layout = "AdminTable";
+    ViewBag.Title = "Users";
+}
+@using GameZoneManagementSystem.Models;
+ @model List<GameZoneManagementSystem.Models.User>
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Users</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">DataTables</li>
+                    </ol>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+    <section class="content">
+        <div class="container-fluid">
+            <form asp-action="Register" asp-controller="Admin" method="post">
+                <div class="form-group">
+                    <label asp-for="Name">Name</label>
+                    <input asp-for="Name" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email">Email</label>
+                    <input asp-for="Email" type="email" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Phone">Phone</label>
+                    <input asp-for="Phone" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password">Password</label>
+                    <input asp-for="Password" type="password" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Dob">Date of Birth</label>
+                    <input asp-for="Dob" type="date" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Gender</label><br />
+                    <input type="radio" asp-for="Gender" name="Gender" value="M" checked /> Male
+                    <input type="radio" asp-for="Gender" name="Gender" value="F" /> Female
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Role">Role</label>
+                    <select asp-for="Role" class="form-control" required>
+                        <option value="1">Admin</option>
+                        <option value="3">Employee</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">Register</button>
+                <a href="@Url.Action("Users", "Admin")" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </section>

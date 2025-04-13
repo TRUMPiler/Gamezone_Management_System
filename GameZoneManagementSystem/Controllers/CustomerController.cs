@@ -3,6 +3,7 @@ using GameZoneManagementSystem.Models;
 using System.Data.SqlClient;
 using GameZoneManagementSystem.Controllers;
 using System.Data;
+using Microsoft.AspNetCore.Mvc.Rendering;
 namespace GameZoneManagementSystem.Controllers
 {
     public class CustomerController : Controller
@@ -142,6 +143,81 @@ namespace GameZoneManagementSystem.Controllers
             }
                 return View();
         }
+
+        //-------------------------------------------------------------------
+
+//        public IActionResult Feedback()
+//        {
+//            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
+//            if (!HasBookedSlot(userId))
+//            {
+//                return RedirectToAction("Index", "Home");
+//            }
+
+//            FeedbackViewModel model = new FeedbackViewModel();
+//            model.Games = new List<SelectListItem>();
+
+//            string query = "SELECT DISTINCT g.ID, g.Game FROM Tbl_Game g " +
+//                           "INNER JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID " +
+//                           "WHERE gs.ID IN (SELECT SlotID FROM Tbl_Booking WHERE UserID = @userID)";
+
+//            using (SqlCommand cmd = new SqlCommand(query, con))
+//            {
+//                cmd.Parameters.AddWithValue("@userID", userId);
+//                con.Open();
+//                SqlDataReader reader = cmd.ExecuteReader();
+//                while (reader.Read())
+//                {
+//                    model.Games.Add(new SelectListItem
+//                    {
+//                        Value = reader["ID"].ToString(),
+//                        Text = reader["Game"].ToString()
+//                    });
+//                }
+//                con.Close();
+//            }
+
+//            return View(model);
+//        }
+
+//        [HttpPost]
+//        public IActionResult Feedback(FeedbackViewModel model)
+//        {
+//            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
+//            string query = "INSERT INTO Tbl_Feedbacks(UserID, GameID, Message) VALUES(@UserID, @GameID, @Message)";
+
+//            using (SqlCommand cmd = new SqlCommand(query, con))
+//            {
+//                cmd.Parameters.AddWithValue("@UserID", userId);
+//                cmd.Parameters.AddWithValue("@GameID", model.GameID);
+//                cmd.Parameters.AddWithValue("@Message", model.Message);
+
+//                con.Open();
+//                cmd.ExecuteNonQuery();
+//                con.Close();
+//            }
+
+//            TempData["Success"] = "Feedback submitted successfully.";
+//            return RedirectToAction("Feedback");
+//        }
+
+//        public bool HasBookedSlot(int userId)
+//        {
+//            string query = "SELECT COUNT(*) FROM Tbl_Booking WHERE UserID = @userID";
+//            using (SqlCommand cmd = new SqlCommand(query, con))
+//            {
+//                cmd.Parameters.AddWithValue("@userID", userId);
+//                con.Open();
+//                int count = (int)cmd.ExecuteScalar();
+//                con.Close();
+//                return count > 0;
+//            }
+//        }
+//}
+
+
+        //-------------------------------------------------------------------------
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
@@ -165,8 +241,15 @@ namespace GameZoneManagementSystem.Controllers
         }
         public IActionResult Games()
         {
+            List<Games> games = new List<Games>();
+            string query = "select * from Tbl_Games where Status=1";
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+
+            }
             return View();
         }
+
         [HttpPost]
         public IActionResult Register(User user)
         {
