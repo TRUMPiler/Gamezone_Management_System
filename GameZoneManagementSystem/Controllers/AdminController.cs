@@ -160,6 +160,110 @@ namespace GameZoneManagementSystem.Controllers
             }
         }
 
+
+
+
+
+
+
+        public IActionResult EditGame(int id)
+        {
+            Games game = new Games();
+            string query = "SELECT * FROM Tbl_Game WHERE ID = @id";
+
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        game.Id = (int)reader["ID"];
+                        game.Name = reader["Game"].ToString();
+                        game.Game_Description = reader["Game_Description"].ToString();
+                        game.SubCatID = (int)reader["SubCatID"];
+                        game.image = reader["Image"].ToString();
+                    }
+                }
+                con.Close();
+            }
+            List<SelectListItem> subCategories = new List<SelectListItem>();
+            string subCatQuery = "SELECT ID, Sub_Category_Name FROM Tbl_Games_Sub_Category";
+
+            using (SqlCommand cmd = new SqlCommand(subCatQuery, con))
+            {
+                con.Open();
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        subCategories.Add(new SelectListItem
+                        {
+                            Value = rdr["ID"].ToString(),
+                            Text = rdr["Sub_Category_Name"].ToString()
+                        });
+                    }
+                }
+                con.Close();
+            }
+
+            ViewBag.SubCategories = subCategories;
+
+            return View(game);
+        }
+
+        [HttpPost]
+        public IActionResult EditGame(Games updatedGame)
+        {
+            string connectionString = this.configuration.GetConnectionString("DefaultConnection");
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string query = @"UPDATE Tbl_Game SET Game = @name,Game_Description = @desc, SubCatID = @subcat,Image = @img  WHERE ID = @id";
+
+                using (SqlCommand command = new SqlCommand(query, con))
+                {
+                    command.Parameters.AddWithValue("@name", updatedGame.Name);
+                    command.Parameters.AddWithValue("@desc", updatedGame.Game_Description);
+                    command.Parameters.AddWithValue("@subcat", updatedGame.SubCatID);
+                    command.Parameters.AddWithValue("@img", updatedGame.image);
+                    command.Parameters.AddWithValue("@id", updatedGame.Id);
+
+                    con.Open();
+                    command.ExecuteNonQuery(); 
+                }
+            }
+
+            return RedirectToAction("Games");
+        }
+
+
+
+        public IActionResult DeleteGame(int id)
+        {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+            string query = "DELETE FROM Tbl_Game WHERE ID = @id";
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                con.Open();
+                command.ExecuteNonQuery();
+                con.Close();
+            }
+
+            return RedirectToAction("Games");
+        }
+
+
+
+
+
+
+
+
+
         public ActionResult Index1()
         {
             return View();
@@ -559,6 +663,52 @@ namespace GameZoneManagementSystem.Controllers
 
 
         }
+
+        //-------------------------------Add credit-----------------------------------------
+
+        public IActionResult AddCredit()
+        {
+            List<User> users = new List<User>();
+
+            using (SqlConnection con = new SqlConnection(this.configuration.GetConnectionString("DefaultConnection")))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("SELECT ID, Name, Email, Phone FROM Tbl_Users WHERE Status = 1", con);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    users.Add(new User
+                    {
+                        id = (int)reader["ID"],
+                        Name = reader["Name"].ToString(),
+                        Email = reader["Email"].ToString(),
+                        Phone = reader["Phone"].ToString()
+                    });
+                }
+            }
+
+            return View(users); // Make sure view is named AddCredit.cshtml
+        }
+
+        [HttpPost]
+        public IActionResult AddCreditToUser(int userId, decimal amount)
+        {
+            using (SqlConnection con = new SqlConnection(this.configuration.GetConnectionString("DefaultConnection")))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_Credits (Credits, UserID) VALUES (@credits, @userId)", con);
+                cmd.Parameters.AddWithValue("@credits", amount);
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["Success"] = "Credits added successfully!";
+            return RedirectToAction("AddCredit");
+        }
+
+
+        //------------------------------------------------------------------------------------
 
 
 

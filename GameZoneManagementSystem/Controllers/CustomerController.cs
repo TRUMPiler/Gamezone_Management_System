@@ -147,74 +147,171 @@ namespace GameZoneManagementSystem.Controllers
 
         //-------------------------------------------------------------------
 
-//        public IActionResult Feedback()
-//        {
-//            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
-//            if (!HasBookedSlot(userId))
-//            {
-//                return RedirectToAction("Index", "Home");
-//            }
+        //        public IActionResult Feedback()
+        //        {
+        //            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
+        //            if (!HasBookedSlot(userId))
+        //            {
+        //                return RedirectToAction("Index", "Home");
+        //            }
 
-//            FeedbackViewModel model = new FeedbackViewModel();
-//            model.Games = new List<SelectListItem>();
+        //            FeedbackViewModel model = new FeedbackViewModel();
+        //            model.Games = new List<SelectListItem>();
 
-//            string query = "SELECT DISTINCT g.ID, g.Game FROM Tbl_Game g " +
-//                           "INNER JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID " +
-//                           "WHERE gs.ID IN (SELECT SlotID FROM Tbl_Booking WHERE UserID = @userID)";
+        //            string query = "SELECT DISTINCT g.ID, g.Game FROM Tbl_Game g " +
+        //                           "INNER JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID " +
+        //                           "WHERE gs.ID IN (SELECT SlotID FROM Tbl_Booking WHERE UserID = @userID)";
 
-//            using (SqlCommand cmd = new SqlCommand(query, con))
-//            {
-//                cmd.Parameters.AddWithValue("@userID", userId);
-//                con.Open();
-//                SqlDataReader reader = cmd.ExecuteReader();
-//                while (reader.Read())
-//                {
-//                    model.Games.Add(new SelectListItem
-//                    {
-//                        Value = reader["ID"].ToString(),
-//                        Text = reader["Game"].ToString()
-//                    });
-//                }
-//                con.Close();
-//            }
+        //            using (SqlCommand cmd = new SqlCommand(query, con))
+        //            {
+        //                cmd.Parameters.AddWithValue("@userID", userId);
+        //                con.Open();
+        //                SqlDataReader reader = cmd.ExecuteReader();
+        //                while (reader.Read())
+        //                {
+        //                    model.Games.Add(new SelectListItem
+        //                    {
+        //                        Value = reader["ID"].ToString(),
+        //                        Text = reader["Game"].ToString()
+        //                    });
+        //                }
+        //                con.Close();
+        //            }
 
-//            return View(model);
-//        }
+        //            return View(model);
+        //        }
 
-//        [HttpPost]
-//        public IActionResult Feedback(FeedbackViewModel model)
-//        {
-//            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
-//            string query = "INSERT INTO Tbl_Feedbacks(UserID, GameID, Message) VALUES(@UserID, @GameID, @Message)";
+        //        [HttpPost]
+        //        public IActionResult Feedback(FeedbackViewModel model)
+        //        {
+        //            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
+        //            string query = "INSERT INTO Tbl_Feedbacks(UserID, GameID, Message) VALUES(@UserID, @GameID, @Message)";
 
-//            using (SqlCommand cmd = new SqlCommand(query, con))
-//            {
-//                cmd.Parameters.AddWithValue("@UserID", userId);
-//                cmd.Parameters.AddWithValue("@GameID", model.GameID);
-//                cmd.Parameters.AddWithValue("@Message", model.Message);
+        //            using (SqlCommand cmd = new SqlCommand(query, con))
+        //            {
+        //                cmd.Parameters.AddWithValue("@UserID", userId);
+        //                cmd.Parameters.AddWithValue("@GameID", model.GameID);
+        //                cmd.Parameters.AddWithValue("@Message", model.Message);
 
-//                con.Open();
-//                cmd.ExecuteNonQuery();
-//                con.Close();
-//            }
+        //                con.Open();
+        //                cmd.ExecuteNonQuery();
+        //                con.Close();
+        //            }
 
-//            TempData["Success"] = "Feedback submitted successfully.";
-//            return RedirectToAction("Feedback");
-//        }
+        //            TempData["Success"] = "Feedback submitted successfully.";
+        //            return RedirectToAction("Feedback");
+        //        }
 
-//        public bool HasBookedSlot(int userId)
-//        {
-//            string query = "SELECT COUNT(*) FROM Tbl_Booking WHERE UserID = @userID";
-//            using (SqlCommand cmd = new SqlCommand(query, con))
-//            {
-//                cmd.Parameters.AddWithValue("@userID", userId);
-//                con.Open();
-//                int count = (int)cmd.ExecuteScalar();
-//                con.Close();
-//                return count > 0;
-//            }
-//        }
-//}
+        //        public bool HasBookedSlot(int userId)
+        //        {
+        //            string query = "SELECT COUNT(*) FROM Tbl_Booking WHERE UserID = @userID";
+        //            using (SqlCommand cmd = new SqlCommand(query, con))
+        //            {
+        //                cmd.Parameters.AddWithValue("@userID", userId);
+        //                con.Open();
+        //                int count = (int)cmd.ExecuteScalar();
+        //                con.Close();
+        //                return count > 0;
+        //            }
+        //        }
+        //}         
+
+        //public IActionResult BookSlot(int gameId)
+        //{
+        //    var model = new SlotBookingViewModel();
+        //    model.GameID = gameId;
+        //    model.Days = new List<SelectListItem>();
+        //    model.Times = new List<SelectListItem>();
+
+        //    // Load days
+        //    con.Open();
+        //    SqlCommand dayCmd = new SqlCommand("SELECT * FROM Tbl_Day", con);
+        //    SqlDataReader dayReader = dayCmd.ExecuteReader();
+        //    while (dayReader.Read())
+        //    {
+        //        model.Days.Add(new SelectListItem
+        //        {
+        //            Value = dayReader["ID"].ToString(),
+        //            Text = dayReader["Day"].ToString()
+        //        });
+        //    }
+        //    dayReader.Close();
+
+        //    // Load times
+        //    SqlCommand timeCmd = new SqlCommand("SELECT * FROM Tbl_Time", con);
+        //    SqlDataReader timeReader = timeCmd.ExecuteReader();
+        //    while (timeReader.Read())
+        //    {
+        //        model.Times.Add(new SelectListItem
+        //        {
+        //            Value = timeReader["ID"].ToString(),
+        //            Text = timeReader["Time"].ToString()
+        //        });
+        //    }
+        //    con.Close();
+
+        //    return View(model);
+        //}
+
+        //[HttpPost]
+        //public IActionResult BookSlot(SlotBookingViewModel model)
+        //{
+        //    int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
+
+        //    // Check credits
+        //    int userCredits = 0;
+        //    con.Open();
+        //    SqlCommand creditCmd = new SqlCommand("SELECT Credit FROM Tbl_Users WHERE ID=@id", con);
+        //    creditCmd.Parameters.AddWithValue("@id", userId);
+        //    userCredits = Convert.ToInt32(creditCmd.ExecuteScalar());
+
+        //    // Assume each game costs 200 credits
+        //    if (userCredits < 200)
+        //    {
+        //        ViewBag.Message = "Not enough credits to book this slot.";
+        //        con.Close();
+        //        return View(model);
+        //    }
+
+        //    // Create/Find slot in Tbl_Slot
+        //    int slotId = 0;
+        //    SqlCommand checkSlot = new SqlCommand("SELECT ID FROM Tbl_Slot WHERE DayID=@day AND TimeID=@time", con);
+        //    checkSlot.Parameters.AddWithValue("@day", model.DayID);
+        //    checkSlot.Parameters.AddWithValue("@time", model.TimeID);
+        //    var slotObj = checkSlot.ExecuteScalar();
+        //    if (slotObj != null)
+        //    {
+        //        slotId = Convert.ToInt32(slotObj);
+        //    }
+        //    else
+        //    {
+        //        SqlCommand insertSlot = new SqlCommand("INSERT INTO Tbl_Slot(DayID, TimeID) OUTPUT INSERTED.ID VALUES(@day, @time)", con);
+        //        insertSlot.Parameters.AddWithValue("@day", model.DayID);
+        //        insertSlot.Parameters.AddWithValue("@time", model.TimeID);
+        //        slotId = (int)insertSlot.ExecuteScalar();
+        //    }
+
+        //    // Insert into Tbl_Game_Slot
+        //    SqlCommand insertGameSlot = new SqlCommand("INSERT INTO Tbl_Game_Slot(GameID, SlotID) VALUES(@game, @slot)", con);
+        //    insertGameSlot.Parameters.AddWithValue("@game", model.GameID);
+        //    insertGameSlot.Parameters.AddWithValue("@slot", slotId);
+        //    insertGameSlot.ExecuteNonQuery();
+
+        //    // Insert booking (assuming Tbl_Booking exists)
+        //    SqlCommand insertBooking = new SqlCommand("INSERT INTO Tbl_Booking(UserID, SlotID) VALUES(@user, @slot)", con);
+        //    insertBooking.Parameters.AddWithValue("@user", userId);
+        //    insertBooking.Parameters.AddWithValue("@slot", slotId);
+        //    insertBooking.ExecuteNonQuery();
+
+        //    // Deduct credits
+        //    SqlCommand updateCredit = new SqlCommand("UPDATE Tbl_Users SET Credit = Credit - 200 WHERE ID = @id", con);
+        //    updateCredit.Parameters.AddWithValue("@id", userId);
+        //    updateCredit.ExecuteNonQuery();
+
+        //    con.Close();
+        //    TempData["Success"] = "Slot booked successfully!";
+        //    return RedirectToAction("Games");
+        //}
 
 
         //-------------------------------------------------------------------------

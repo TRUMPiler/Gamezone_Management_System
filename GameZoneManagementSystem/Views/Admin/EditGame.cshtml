@@ -1,0 +1,44 @@
+﻿@model GameZoneManagementSystem.Models.Games
+@{
+    ViewBag.Title = "Edit Game";
+    Layout = "AdminTable";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Game</h2>
+
+    <form asp-action="EditGame" method="post">
+        <input type="hidden" asp-for="id" />
+
+        <div class="form-group mb-3">
+            <label for="Game_Name">Game Name</label>
+            <input asp-for="Game_Name" class="form-control" placeholder="Enter game name" required />
+            <span asp-validation-for="Game_Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="Game_Description">Description</label>
+            <textarea asp-for="Game_Description" class="form-control" rows="4" placeholder="Enter game description" required></textarea>
+            <span asp-validation-for="Game_Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="SubCatID">Sub Category</label>
+            <select asp-for="SubCatID" asp-items="ViewBag.SubCategories" class="form-control">
+                <option value="">-- Select Sub Category --</option>
+            </select>
+            <span asp-validation-for="SubCatID" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="Image">Image URL</label>
+            <input asp-for="Image" class="form-control" placeholder="Enter image URL" required />
+            <span asp-validation-for="Image" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="@Url.Action("Games", "Admin")" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+    </form>
+</div>

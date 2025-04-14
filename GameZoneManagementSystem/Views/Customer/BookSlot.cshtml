@@ -1,0 +1,18 @@
+﻿@model GameZoneManagementSystem.Models.AddSlotViewModel
+<h2>Book Your Slot</h2> 
+
+<form asp-action="BookSlot" method="post">
+    <input type="hidden" asp-for="GameID" />
+
+    <div>
+        <label>Day</label>
+        <select asp-for="DayID" asp-items="Model.Days"></select>
+    </div>
+
+    <div>
+        <label>Time</label>
+        <select asp-for="TimeID" asp-items="Model.Times"></select>
+    </div>
+
+    <button type="submit">Confirm Booking</button>
+</form>

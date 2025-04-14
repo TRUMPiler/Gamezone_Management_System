@@ -111,9 +111,11 @@
 						
 						@if (HttpContextAccessor.HttpContext.Session.GetString("Login") != null)
 						{
-							<li><a href="@Url.Action("SlotBookingView", "SlotBooking")">Book Slot</a></li>
 							<li><a href="@Url.Action("Profile", "Customer")">Profile</a></li>
 						}
+
+				
+
 					</ul>
 				</nav>
 			</div>
