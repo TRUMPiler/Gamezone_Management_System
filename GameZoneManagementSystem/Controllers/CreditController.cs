@@ -59,64 +59,74 @@ namespace GameZoneManagementSystem.Controllers
         {
             try
             {
-                // Extract payment ID and other details
+                // Extract payment details
                 string paymentId = paymentDetails.razorpay_payment_id;
-                int userId = 1; // Replace with your actual logic for user ID
-                decimal paymentAmount = 500; // Replace with the actual payment amount logic
+                int userId;
+                decimal paymentAmount = 500; // Replace with actual payment amount logic
 
-                // Insert payment details into the database
+                // Validate session for UserId
+                if (HttpContext.Session.GetString("Userid") != null)
+                {
+                    userId = Int32.Parse(HttpContext.Session.GetString("Userid"));
+                }
+                else
+                {
+                    Console.WriteLine("Error: User ID not found in session");
+                    return Json(new { success = false, error = "User ID not found in session" });
+                }
+
                 using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
                 {
                     con.Open();
-
-                    // Check if user already has a credit entry
-                    using (SqlCommand checkCmd = new SqlCommand("SELECT count(id) FROM Tbl_Credits WHERE userid = @userid", con))
+                    using (SqlTransaction transaction = con.BeginTransaction())
                     {
-                        checkCmd.Parameters.AddWithValue("@userid", userId);
-                        int count = (int)checkCmd.ExecuteScalar();
-
-                        if (count == 0)
+                        try
                         {
-                            // Insert a new credit entry if none exists
-                            using (SqlCommand insertCreditCmd = new SqlCommand("INSERT INTO Tbl_Credits (Credits, UserId) VALUES (@credits, @userid)", con))
+                            // Check if user already has a credit entry
+                            int count = 0;
+                            using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(ID) FROM Tbl_Credits WHERE UserId = @userid", con, transaction))
                             {
-                                if(HttpContext.Session.GetString("Userid")!=null)
-                                {
-                                    string v = HttpContext.Session.GetString("Userid").ToString();
-                                    userId = Int32.Parse(v);
+                                checkCmd.Parameters.AddWithValue("@userid", userId);
+                                count = (int)checkCmd.ExecuteScalar();
+                            }
 
-                                    insertCreditCmd.Parameters.AddWithValue("@credits", 0);
+                            if (count == 0)
+                            {
+                                // Insert a new credit entry
+                                using (SqlCommand insertCreditCmd = new SqlCommand("INSERT INTO Tbl_Credits (Credits, UserId) VALUES (0, @userid)", con, transaction))
+                                {
                                     insertCreditCmd.Parameters.AddWithValue("@userid", userId);
                                     insertCreditCmd.ExecuteNonQuery();
                                 }
-                                else
-                                {
-                                    userId = 1;
-                                    Console.WriteLine("Error: Details not found");
-                                    return Json(new { success = false,error="Details Not Found" });
-                                }
-                                
                             }
+
+                            // Update the credits for the user
+                            using (SqlCommand updateCreditCmd = new SqlCommand("UPDATE Tbl_Credits SET Credits = Credits + @credits WHERE UserId = @userid", con, transaction))
+                            {
+                                updateCreditCmd.Parameters.AddWithValue("@credits", paymentAmount);
+                                updateCreditCmd.Parameters.AddWithValue("@userid", userId);
+                                updateCreditCmd.ExecuteNonQuery();
+                            }
+
+                            // Insert payment details into Tbl_Payments
+                            using (SqlCommand insertPaymentCmd = new SqlCommand(
+       "INSERT INTO Tbl_Payments (UserId, TransactionID, Type, Date) VALUES (@userid, @paymentId, @type, @Date)", con, transaction))
+                            {
+                                insertPaymentCmd.Parameters.AddWithValue("@userid", userId);
+                                insertPaymentCmd.Parameters.AddWithValue("@paymentId", paymentId);
+                                insertPaymentCmd.Parameters.AddWithValue("@type", 1); 
+                                insertPaymentCmd.Parameters.AddWithValue("@Date", DateTime.Now);
+                                insertPaymentCmd.ExecuteNonQuery();
+                            }
+
+
+                            transaction.Commit(); // Commit transaction if all commands are successful
                         }
-                    }
-
-                    // Update the credits for the user
-                    using (SqlCommand updateCreditCmd = new SqlCommand("UPDATE Tbl_Credits SET Credits = Credits + @credits WHERE UserId = @userid", con))
-                    {
-                        updateCreditCmd.Parameters.AddWithValue("@credits", paymentAmount);
-                        updateCreditCmd.Parameters.AddWithValue("@userid", userId);
-                        updateCreditCmd.ExecuteNonQuery();
-                    }
-
-                    // Insert payment details into tbl_payment
-                    using (SqlCommand insertPaymentCmd = new SqlCommand(
-                        "INSERT INTO Tbl_Payments (userid, TransactionID, Type,Date) VALUES (@userid, @paymentId, @amount,@Date)", con))
-                    {
-                        insertPaymentCmd.Parameters.AddWithValue("@userid", userId);
-                        insertPaymentCmd.Parameters.AddWithValue("@paymentId", paymentId);
-                        insertPaymentCmd.Parameters.AddWithValue("@amount", 1);
-                        insertPaymentCmd.Parameters.AddWithValue("@Date", DateTime.Now.Date);
-                        insertPaymentCmd.ExecuteNonQuery();
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback(); // Rollback transaction in case of any error
+                            throw new Exception("Transaction failed: " + ex.Message);
+                        }
                     }
                 }
 
@@ -128,6 +138,7 @@ namespace GameZoneManagementSystem.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+
         public bool AddAmout(int credit,int userid=0)
         {
 

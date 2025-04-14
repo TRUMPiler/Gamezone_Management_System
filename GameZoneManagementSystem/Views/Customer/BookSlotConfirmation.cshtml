@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Confirm Booking";
+}
+
+<section class="intro-section"></section>
+<section class="blog-section spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2 text-white">
+                <h3>Confirm Your Booking</h3>
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+                }
+                else
+                {
+                    @if (ViewBag.GameName != null)
+                    {
+                        <div class="card bg-dark text-white mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Game: @ViewBag.GameName</h5>
+                                <p class="card-text">Day: @ViewBag.Day</p>
+                                <p class="card-text">Time Slot: @ViewBag.TimeRange</p>
+                                <p class="card-text">Booking Date: @ViewBag.BookingDate</p>
+
+                                <form method="post" action="BookSlot">
+                                    <input type="hidden" name="GameID" value="@Context.Session.GetInt32("BookingGameID")" />
+                                    <input type="hidden" name="Day" value="@Context.Session.GetString("BookingDay")" />
+                                    <input type="hidden" name="TimeRange" value="@Context.Session.GetString("BookingTimeRange")" />
+                                    <input type="hidden" name="bookingDate" value="@Context.Session.GetString("BookingDate")" />
+
+                                    <button type="submit" class="btn btn-success">Confirm Booking</button>
+                                    <a href="/Customer/Games" class="btn btn-secondary">Cancel</a>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No booking information available.</p>
+                        <a href="/Customer/Games" class="btn btn-primary">Back to Games</a>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+}

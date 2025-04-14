@@ -1,18 +1,24 @@
-﻿@model GameZoneManagementSystem.Models.Games
+﻿@using GameZoneManagementSystem.Models;
+@model GameZoneManagementSystem.Models.Games
 @{
     ViewBag.Title = "Edit Game";
     Layout = "AdminTable";
 }
-
+<div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <h1>Edit User</h1>
+        </div>
+    </section>
 <div class="container mt-5">
     <h2 class="mb-4">Edit Game</h2>
-
+    
     <form asp-action="EditGame" method="post">
         <input type="hidden" asp-for="id" />
 
         <div class="form-group mb-3">
             <label for="Game_Name">Game Name</label>
-            <input asp-for="Game_Name" class="form-control" placeholder="Enter game name" required />
+            <input asp-for="Game_Name" class="form-control"  placeholder="Enter game name" required />
             <span asp-validation-for="Game_Name" class="text-danger"></span>
         </div>
 

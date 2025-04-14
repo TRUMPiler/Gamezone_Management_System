@@ -1,9 +1,9 @@
 	Go
-	Create Database GZMS;
+	Create Database GZMSs;
 	Go
 
 
-	USE GZMS;
+	USE GZMSs;
 
 	CREATE TABLE Tbl_Role (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Role
@@ -65,7 +65,7 @@
 	CREATE TABLE Tbl_Game (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Games
 		Game VARCHAR(20) NOT NULL, -- Game name
-		Game_Description VARCHAR(200) NOT NULL, -- Game description
+		Game_Description NVARCHAR(MAX) NOT NULL, -- Game description
 		SubCatID INT NOT NULL, 
 		Image VARCHAR(200) NOT NULL, -- Image URL or path
 		Status bit Default(1),
@@ -110,6 +110,7 @@
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Game Slot Bookings
 		Game_SlotID INT NOT NULL, -- FK to Tbl_Game_Slot
 		UserID INT NOT NULL, -- FK to Tbl_Users
+		Date date,
 		CONSTRAINT FK_Tbl_Game_Slot_Booking_Game_Slot FOREIGN KEY (Game_SlotID) REFERENCES Tbl_Game_Slot(ID),
 		CONSTRAINT FK_Tbl_Game_Slot_Booking_User FOREIGN KEY (UserID) REFERENCES Tbl_Users(ID)
 	);
@@ -125,7 +126,7 @@
 	insert into Tbl_Role(Role) values('C');
 	insert into Tbl_Role(Role) values('E');
 	insert into Tbl_Role(Role) values('M');
-	insert into Tbl_Day(Day) values('Monday');
+	insert into Tbl_Day(Day) values('Monday');	
 	insert into Tbl_Day(Day) values('Tuesday');
 	insert into Tbl_Day(Day) values('Wednesday');
 	insert into Tbl_Day(Day) values('Thursday');
@@ -157,5 +158,8 @@
 ('20:30:00', '21:00:00');
 
 	insert into Tbl_Users(Name,DOB,Password,Email,Phone,Gender,RoleID,Status) values('Varun Dhankhara','08-09-2004','4d1523191588e66ee85ff4c3d707040aa24762d7633fd19e4b2cf08056bb37f9','22bmiit031@gmail.com','9773472368','M',1,1);
+	insert into Tbl_Users(Name,DOB,Password,Email,Phone,Gender,RoleID,Status) values('Harsh','05-02-2004','4d1523191588e66ee85ff4c3d707040aa24762d7633fd19e4b2cf08056bb37f9','22bmiit016@gmail.com','9773472369','M',2,1);
 	insert into Tbl_Games_Category(CategoryName) VALUES('Indoor')
+	insert into Tbl_Games_Category(CategoryName) VALUES('Outdoor')
 	insert into Tbl_Games_Sub_Category(CategoryID,Sub_Category_Name) VALUES(1,'Arcade');
+	insert into Tbl_Games_Sub_Category(CategoryID,Sub_Category_Name) VALUES(2,'Sports');

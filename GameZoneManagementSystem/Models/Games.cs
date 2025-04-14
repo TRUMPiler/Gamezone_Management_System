@@ -14,5 +14,6 @@ namespace GameZoneManagementSystem.Models
         public decimal price { get; set; }
         public bool Status { get; set; }
         public GameSlot Slot { get; set; }
+        public List<string> Slots { get; set; } = new List<string>();
     }
 }

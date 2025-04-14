@@ -5,7 +5,8 @@ using GameZoneManagementSystem.Controllers;
 using System.Data;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SlotBookingApp.Models;
-namespace GameZoneManagementSystem.Controllers
+using System.Security.Claims;
+namespace GameZoneManagementSystem.Controllersd
 {
     public class CustomerController : Controller
     {
@@ -215,106 +216,146 @@ namespace GameZoneManagementSystem.Controllers
         //            }
         //        }
         //}         
+        public IActionResult BookSlotConfirmation(int GameID, string Day, string TimeRange, DateTime? bookingDate)
+        {
+            if (!isLoggedin())
+            {
+                string script = "<script>alert('You are not logged in.')</script>" +
+                                "<script>window.location='/Home/Login'</script>";
+                return Content(script, "text/html");
+            }
 
-        //public IActionResult BookSlot(int gameId)
-        //{
-        //    var model = new SlotBookingViewModel();
-        //    model.GameID = gameId;
-        //    model.Days = new List<SelectListItem>();
-        //    model.Times = new List<SelectListItem>();
+            if (!bookingDate.HasValue)
+            {
+                TempData["ErrorMessage"] = "Please select a booking date.";
+                return RedirectToAction("Games");
+            }
 
-        //    // Load days
-        //    con.Open();
-        //    SqlCommand dayCmd = new SqlCommand("SELECT * FROM Tbl_Day", con);
-        //    SqlDataReader dayReader = dayCmd.ExecuteReader();
-        //    while (dayReader.Read())
-        //    {
-        //        model.Days.Add(new SelectListItem
-        //        {
-        //            Value = dayReader["ID"].ToString(),
-        //            Text = dayReader["Day"].ToString()
-        //        });
-        //    }
-        //    dayReader.Close();
+            HttpContext.Session.SetInt32("BookingGameID", GameID);
+            HttpContext.Session.SetString("BookingDay", Day);
+            HttpContext.Session.SetString("BookingTimeRange", TimeRange);
+            HttpContext.Session.SetString("BookingDate", bookingDate.Value.ToString("yyyy-MM-dd")); // Store date as string
 
-        //    // Load times
-        //    SqlCommand timeCmd = new SqlCommand("SELECT * FROM Tbl_Time", con);
-        //    SqlDataReader timeReader = timeCmd.ExecuteReader();
-        //    while (timeReader.Read())
-        //    {
-        //        model.Times.Add(new SelectListItem
-        //        {
-        //            Value = timeReader["ID"].ToString(),
-        //            Text = timeReader["Time"].ToString()
-        //        });
-        //    }
-        //    con.Close();
+            // Fetch game details for confirmation
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+            {
+                con.Open();
+                string gameQuery = "SELECT ID, Game FROM Tbl_Game WHERE ID = @GameID";
+                using (SqlCommand cmd = new SqlCommand(gameQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@GameID", GameID);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            ViewBag.GameName = reader["Game"].ToString();
+                            ViewBag.Day = Day;
+                            ViewBag.TimeRange = TimeRange;
+                            ViewBag.BookingDate = bookingDate.Value.ToShortDateString();
+                            return View();
+                        }
+                    }
+                }
+                return RedirectToAction("Games"); // If game not found
+            }
+        }
 
-        //    return View(model);
-        //}
+        [HttpPost]
+        public IActionResult BookSlot()
+        {
+            if (!isLoggedin())
+            {
+                string script = "<script>alert('You are not logged in.')</script>" +
+                                "<script>window.location='/Home/Login'</script>";
+                return Content(script, "text/html");
+            }
 
-        //[HttpPost]
-        //public IActionResult BookSlot(SlotBookingViewModel model)
-        //{
-        //    int userId = Convert.ToInt32(HttpContext.Session.GetString("UserID"));
+            int userId = Int32.Parse(HttpContext.Session.GetString("Userid"));
+            int gameId = HttpContext.Session.GetInt32("BookingGameID").Value;
+            string day = HttpContext.Session.GetString("BookingDay");
+            string timeRange = HttpContext.Session.GetString("BookingTimeRange");
+            DateTime bookingDate = DateTime.Parse(HttpContext.Session.GetString("BookingDate"));
 
-        //    // Check credits
-        //    int userCredits = 0;
-        //    con.Open();
-        //    SqlCommand creditCmd = new SqlCommand("SELECT Credit FROM Tbl_Users WHERE ID=@id", con);
-        //    creditCmd.Parameters.AddWithValue("@id", userId);
-        //    userCredits = Convert.ToInt32(creditCmd.ExecuteScalar());
+            int? gameSlotIdToBook = null;
 
-        //    // Assume each game costs 200 credits
-        //    if (userCredits < 200)
-        //    {
-        //        ViewBag.Message = "Not enough credits to book this slot.";
-        //        con.Close();
-        //        return View(model);
-        //    }
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+            {
+                con.Open();
 
-        //    // Create/Find slot in Tbl_Slot
-        //    int slotId = 0;
-        //    SqlCommand checkSlot = new SqlCommand("SELECT ID FROM Tbl_Slot WHERE DayID=@day AND TimeID=@time", con);
-        //    checkSlot.Parameters.AddWithValue("@day", model.DayID);
-        //    checkSlot.Parameters.AddWithValue("@time", model.TimeID);
-        //    var slotObj = checkSlot.ExecuteScalar();
-        //    if (slotObj != null)
-        //    {
-        //        slotId = Convert.ToInt32(slotObj);
-        //    }
-        //    else
-        //    {
-        //        SqlCommand insertSlot = new SqlCommand("INSERT INTO Tbl_Slot(DayID, TimeID) OUTPUT INSERTED.ID VALUES(@day, @time)", con);
-        //        insertSlot.Parameters.AddWithValue("@day", model.DayID);
-        //        insertSlot.Parameters.AddWithValue("@time", model.TimeID);
-        //        slotId = (int)insertSlot.ExecuteScalar();
-        //    }
+                // 1. Find the corresponding GameSlotID
+                string findGameSlotIdQuery = @"
+                SELECT gs.ID
+                FROM Tbl_Game g
+                INNER JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID
+                INNER JOIN Tbl_Slot s ON gs.SlotID = s.ID
+                INNER JOIN Tbl_Day d ON s.DayID = d.ID
+                INNER JOIN Tbl_Time t ON s.TimeID = t.ID
+                WHERE g.ID = @GameID
+                  AND d.Day = @Day
+                  AND FORMAT(t.Start_Time, 'hh\:mm') + '-' + FORMAT(t.End_Time, 'hh\:mm') = @TimeRange;";
 
-        //    // Insert into Tbl_Game_Slot
-        //    SqlCommand insertGameSlot = new SqlCommand("INSERT INTO Tbl_Game_Slot(GameID, SlotID) VALUES(@game, @slot)", con);
-        //    insertGameSlot.Parameters.AddWithValue("@game", model.GameID);
-        //    insertGameSlot.Parameters.AddWithValue("@slot", slotId);
-        //    insertGameSlot.ExecuteNonQuery();
+                using (SqlCommand cmdFindGameSlotId = new SqlCommand(findGameSlotIdQuery, con))
+                {
+                    cmdFindGameSlotId.Parameters.AddWithValue("@GameID", gameId);
+                    cmdFindGameSlotId.Parameters.AddWithValue("@Day", day);
+                    cmdFindGameSlotId.Parameters.AddWithValue("@TimeRange", timeRange);
 
-        //    // Insert booking (assuming Tbl_Booking exists)
-        //    SqlCommand insertBooking = new SqlCommand("INSERT INTO Tbl_Booking(UserID, SlotID) VALUES(@user, @slot)", con);
-        //    insertBooking.Parameters.AddWithValue("@user", userId);
-        //    insertBooking.Parameters.AddWithValue("@slot", slotId);
-        //    insertBooking.ExecuteNonQuery();
+                    object result = cmdFindGameSlotId.ExecuteScalar();
+                    if (result != null)
+                    {
+                        gameSlotIdToBook = Convert.ToInt32(result);
+                    }
+                    else
+                    {
+                        string script = "<script>alert('Selected slot is not valid')</script>" +
+                                "<script>window.location='/Customer/Games'</script>";
+                        return Content(script, "text/html");
+                       
+                    }
+                }
 
-        //    // Deduct credits
-        //    SqlCommand updateCredit = new SqlCommand("UPDATE Tbl_Users SET Credit = Credit - 200 WHERE ID = @id", con);
-        //    updateCredit.Parameters.AddWithValue("@id", userId);
-        //    updateCredit.ExecuteNonQuery();
+                if (gameSlotIdToBook.HasValue)
+                {
+                    // 2. Check if the slot is already booked by the current user on the selected date
+                    string checkBookingQuery = @"
+                    SELECT COUNT(*)
+                    FROM Tbl_Game_Slot_Booking
+                    WHERE Game_SlotID = @GameSlotID
+                      AND UserID = @UserID
+                      AND Date = @BookingDate;";
+                    using (SqlCommand cmdCheckBooking = new SqlCommand(checkBookingQuery, con))
+                    {
+                        cmdCheckBooking.Parameters.AddWithValue("@GameSlotID", gameSlotIdToBook.Value);
+                        cmdCheckBooking.Parameters.AddWithValue("@UserID", userId);
+                        cmdCheckBooking.Parameters.AddWithValue("@BookingDate", bookingDate);
+                        int bookingCount = (int)cmdCheckBooking.ExecuteScalar();
+                        if (bookingCount > 0)
+                        {
+                            string script = "<script>alert('You have already booked this slot for the selected date.');window.location='/Customer/Games'</script>";
+                            return Content(script, "text/html");
+                            
+                        }
+                    }
 
-        //    con.Close();
-        //    TempData["Success"] = "Slot booked successfully!";
-        //    return RedirectToAction("Games");
-        //}
+                    // 3. Insert the booking record with the date
+                    string bookSlotQuery = "INSERT INTO Tbl_Game_Slot_Booking (Game_SlotID, UserID, Date) VALUES (@GameSlotID, @UserID, @BookingDate)";
+                    using (SqlCommand cmdBookSlot = new SqlCommand(bookSlotQuery, con))
+                    {
+                        cmdBookSlot.Parameters.AddWithValue("@GameSlotID", gameSlotIdToBook.Value);
+                        cmdBookSlot.Parameters.AddWithValue("@UserID", userId);
+                        cmdBookSlot.Parameters.AddWithValue("@BookingDate", bookingDate);
+                        cmdBookSlot.ExecuteNonQuery();
+                        string message= "Slot booked successfully for " + bookingDate.ToShortDateString() + "!";
+                        string script = "<script>alert('"+message+"');window.location='/Customer/Games'</script>";
+                        return Content(script, "text/html");
+                        //TempData["SuccessMessage"] = 
+                        //return RedirectToAction("Games");
+                    }
+                }
+            }
 
-
-        //-------------------------------------------------------------------------
+            return RedirectToAction("Games"); // General error
+        }
 
         public IActionResult Logout()
         {
@@ -338,76 +379,117 @@ namespace GameZoneManagementSystem.Controllers
             
         }
         public IActionResult Games()
+    {
+        SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+        List<Games> games = new List<Games>();
+        Dictionary<int, List<string>> gameSlots = new Dictionary<int, List<string>>();
+
+        // Query 1: Get basic game information
+        string gameQuery = @"
+            SELECT
+                g.ID AS GameID,
+                g.Game,
+                g.Game_Description,
+                g.SubCatID,
+                g.Image,
+                p.Credits,
+                sc.Sub_Category_Name,
+                sc.CategoryID,
+                c.CategoryName
+            FROM Tbl_Game g
+            LEFT JOIN Tbl_Price p ON g.ID = p.GameID
+            LEFT JOIN Tbl_Games_Sub_Category sc ON g.SubCatID = sc.ID
+            LEFT JOIN Tbl_Games_Category c ON sc.CategoryID = c.ID
+            WHERE g.Status = 1;
+        ";
+
+        // Query 2: Get slot information for each game
+        string slotQuery = @"
+            SELECT
+                g.ID AS GameID,
+                dy.Day,
+                FORMAT(ti.Start_Time, 'hh\:mm') AS StartTime,
+                FORMAT(ti.End_Time, 'hh\:mm') AS EndTime
+            FROM Tbl_Game g
+            INNER JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID
+            INNER JOIN Tbl_Slot s ON gs.SlotID = s.ID
+            INNER JOIN Tbl_Day dy ON s.DayID = dy.ID
+            INNER JOIN Tbl_Time ti ON s.TimeID = ti.ID
+            WHERE g.Status = 1;
+        ";
+
+        try
         {
-            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
-            List<Games> games = new List<Games>();
+            con.Open();
 
-            string query = @"
-        SELECT 
-    g.ID AS GameID, 
-    g.Game, 
-    g.Game_Description, 
-    g.SubCatID, 
-    g.Image, 
-    p.Credits, 
-    sc.Sub_Category_Name, 
-    sc.CategoryID, -- Ensure this column is included
-    c.CategoryName, 
-    gs.ID AS GameSlotID, 
-    gs.GameID, 
-    s.DayID, 
-    s.TimeID
-FROM Tbl_Game g
-LEFT JOIN Tbl_Price p ON g.ID = p.GameID
-LEFT JOIN Tbl_Games_Sub_Category sc ON g.SubCatID = sc.ID
-LEFT JOIN Tbl_Games_Category c ON sc.CategoryID = c.ID -- Ensure proper join
-LEFT JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID
-LEFT JOIN Tbl_Slot s ON gs.SlotID = s.ID
-where g.Status=1;
-";
-
-            using (SqlCommand command = new SqlCommand(query, con))
+            // Execute the first query to get game details
+            using (SqlCommand gameCommand = new SqlCommand(gameQuery, con))
+            using (SqlDataReader gameReader = gameCommand.ExecuteReader())
             {
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
+                while (gameReader.Read())
                 {
-                    while (reader.Read())
+                    Games game = new Games
                     {
-                        // Create the game object
-                        Games game = new Games
+                        Id = (int)gameReader["GameID"],
+                        Name = (string)gameReader["Game"],
+                        Game_Description = (string)gameReader["Game_Description"],
+                        image = (string)gameReader["Image"],
+                        price = gameReader["Credits"] != DBNull.Value ? (decimal)gameReader["Credits"] : 0,
+                        SubCategory = new Games_Sub_Category
                         {
-                            Id = (int)reader["GameID"],
-                            Name = (string)reader["Game"],
-                            Game_Description = (string)reader["Game_Description"],
-                            image = (string)reader["Image"],
-                            price = reader["Credits"] != DBNull.Value ? (decimal)reader["Credits"] : 0,
+                            ID = (int)gameReader["SubCatID"],
+                            Sub_Category_Name = (string)gameReader["Sub_Category_Name"],
+                            CategoryID = (int)gameReader["CategoryID"],
+                            CategoryName = (string)gameReader["CategoryName"]
+                        },
+                        Slots = new List<string>() // Initialize the Slots list here
+                    };
+                    games.Add(game);
+                    gameSlots[game.Id] = new List<string>(); // Initialize slot list for each game ID
+                }
+            }
 
-                            // Create and assign SubCategory object
-                            SubCategory = new Games_Sub_Category
-                            {
-                                ID = (int)reader["SubCatID"],
-                                Sub_Category_Name = (string)reader["Sub_Category_Name"],
-                                CategoryID = (int)reader["CategoryID"],
-                                CategoryName = (string)reader["CategoryName"]
-                            },
-
-                            // Create and assign Slot object if slot details exist
-                            Slot = reader["GameSlotID"] != DBNull.Value ? new GameSlot
-                            {
-                                Id = (int)reader["GameSlotID"],
-                                GameName = (string)reader["Game"], // Using game name from parent
-                                SlotTime = new DateTime((int)reader["DayID"], 1, 1) // Placeholder
-                                                                                    // Map `DayID` and `TimeID` to a proper `DateTime` if needed
-                            } : null
-                        };
-
-                        games.Add(game);
+            // Execute the second query to get slot details
+            using (SqlCommand slotCommand = new SqlCommand(slotQuery, con))
+            using (SqlDataReader slotReader = slotCommand.ExecuteReader())
+            {
+                while (slotReader.Read())
+                {
+                    int gameId = (int)slotReader["GameID"];
+                    string slot = $"{slotReader["Day"]} {slotReader["StartTime"]}-{slotReader["EndTime"]}";
+                    if (gameSlots.ContainsKey(gameId))
+                    {
+                        gameSlots[gameId].Add(slot);
                     }
                 }
             }
-            con.Close();
-            return View(games);
+
+            // Assign the slots to the respective games
+            foreach (var game in games)
+            {
+                if (gameSlots.ContainsKey(game.Id))
+                {
+                    game.Slots.AddRange(gameSlots[game.Id]);
+                }
+            }
         }
+        catch (Exception ex)
+        {
+            // Handle the exception appropriately
+            Console.WriteLine($"Error: {ex.Message}");
+            // Optionally return an error view
+            return View("Error");
+        }
+        finally
+        {
+            if (con.State == System.Data.ConnectionState.Open)
+            {
+                con.Close();
+            }
+        }
+
+        return View(games);
+    }
 
 
         [HttpPost]

@@ -5,54 +5,140 @@
 @model List<GameZoneManagementSystem.Models.Games>
 <section class="intro-section"></section>
 <section class="blog-section spad">
-	<div class="container">
-		<div class="row">
-			<div class="col-xl-9 col-lg-8 col-md-7">
-				<div class="text-white"><h3>Games</h3></div>
-				<!-- Blog item -->
-				@if(Model.Count==0)
-				{
-					<div class="blog-item">
-						<div class="blog-text text-box text-white">
-							<h3> Sorry Seems Like there is No Game at this Game Center Yet</h3>
-						</div>
-					</div>
-				}
-				@foreach (var game in Model)
-				{
-					<div class="blog-item">
-						<div class="blog-thumb">
-							 
-							<img src="@game.image" alt="">
-						</div>
-						<div class="blog-text text-box text-white">
-							
-							@* <div class="top-meta">11.11.18  /  in <a href="">@game.Name</a></div> *@
-							<h3>@game.Name</h3>
-							<p>Description:	@game.Game_Description</p>
-							<div class="top-meta">Credits to Play <h4>@game.price.ToString("F0")</h4></div>
-							<h6>@game.SubCategory.CategoryName / @game.SubCategory.Sub_Category_Name</h6>
-							<a href="#" class="read-more">Book Slot  <img src="~/img/icons/double-arrow.png" alt="#"></a>
-						</div>
-					</div>
-					<!-- Blog item -->
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-9 col-lg-8 col-md-7">
+                <div class="text-white"><h3>Games</h3></div>
+                @if(Model.Count==0)
+                {
+                    <div class="blog-item">
+                        <div class="blog-text text-box text-white">
+                            <h3> Sorry Seems Like there is No Game at this Game Center Yet</h3>
+                        </div>
+                    </div>
+                }
+                @foreach (var game in Model)
+                {
+                    <div class="blog-item">
+                        <div class="blog-thumb">
+                            <img src="@game.image" alt="">
+                        </div>
+                        <div class="blog-text text-box text-white">
+                            <h3>@game.Name</h3>
+                            <p>Description:	@game.Game_Description</p>
+                            <div class="top-meta">Credits to Play <h4>@game.price.ToString("F0")</h4></div>
+                            <h6>@game.SubCategory?.CategoryName / @game.SubCategory?.Sub_Category_Name</h6>
+                            <h5>Slots Available are</h5>
+                            @if (game.Slots != null && game.Slots.Any())
+                            {
+                                
+                                    var groupedSlots = game.Slots.GroupBy(slot => slot.Split(' ')[0])
+                                                                 .ToDictionary(g => g.Key, g => g.Select(s => new { Day = g.Key, TimeRange = s.Split(' ')[1] }).ToList());
+                                
+                                <ul>
+                                    @foreach (var daySlotGroup in groupedSlots)
+                                    {
+                                        <li>@daySlotGroup.Key
+                                            @foreach (var slotInfo in daySlotGroup.Value)
+                                            {
+                                                <button class="btn btn-sm btn-primary book-slot-btn"
+                                                        data-gameid="@game.Id"
+                                                        data-day="@slotInfo.Day"
+                                                        data-timerange="@slotInfo.TimeRange"
+                                                        onclick="showDatePicker(this)">
+                                                    @slotInfo.TimeRange - Book Now
+                                                </button>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p>No slots available for this game.</p>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="col-xl-3 col-lg-4 col-md-5 sidebar">
+                <div id="stickySidebar" class="is-affixed" style="position: sticky; top: 20px;">
+                    <div class="inner-wrapper-sticky" style="position: relative;">
+                        <div class="widget-item">
+                            <a href="#" class="add">
+                                <img src="~/img/add.jpg" alt="">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-					<!-- Blog item -->
-				}
-			</div>
-			<div class="col-xl-3 col-lg-4 col-md-5 sidebar">
-				<div id="stickySidebar" class="is-affixed" style="height: 1402px; position: relative;">
-					<div class="inner-wrapper-sticky" style="position: relative; transform: translate3d(0px, 2px, 0px);">
-				
-						
-						<div class="widget-item">
-							<a href="#" class="add">
-								<img src="~/img/add.jpg" alt="">
-							</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="modal fade" id="datePickerModal" tabindex="-1" role="dialog" aria-labelledby="datePickerModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="datePickerModalLabel">Select Booking Date</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="bookingDate">Select Date:</label>
+                    <input type="date" id="bookingDate" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" max="@DateTime.Now.AddDays(6).ToString("yyyy-MM-dd")">
+                    <input type="hidden" id="modalGameId" />
+                    <input type="hidden" id="modalDay" />
+                    <input type="hidden" id="modalTimeRange" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="confirmBooking()">Book Slot</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let selectedGameId;
+        let selectedDay;
+        let selectedTimeRange;
+
+        function showDatePicker(button) {
+            selectedGameId = button.dataset.gameid;
+            selectedDay = button.dataset.day;
+            selectedTimeRange = button.dataset.timerange;
+            $('#modalGameId').val(selectedGameId);
+            $('#modalDay').val(selectedDay);
+            $('#modalTimeRange').val(selectedTimeRange);
+            $('#datePickerModal').modal('show');
+        }
+
+        function confirmBooking() {
+            const bookingDate = document.getElementById('bookingDate').value;
+            const gameId = $('#modalGameId').val();
+            const day = $('#modalDay').val();
+            const timeRange = $('#modalTimeRange').val();
+
+            if (bookingDate) {
+                window.location.href = `/Customer/BookSlotConfirmation?GameID=${gameId}&Day=${day}&TimeRange=${timeRange}&bookingDate=${bookingDate}`;
+                $('#datePickerModal').modal('hide');
+            } else {
+                alert('Please select a booking date.');
+            }
+        }
+
+        // Initialize sticky sidebar (you might need to adjust the selector and options)
+        $(document).ready(function() {
+            $('#stickySidebar').stick_in_parent({
+                offset_top: 20 // Adjust as needed
+            });
+        });
+    </script>
+}

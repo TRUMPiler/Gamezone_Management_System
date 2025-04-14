@@ -1,11 +1,21 @@
-﻿@page
-
+﻿
 @{
+    Layout = "AdminLayout";
 }
 @model List<GameZoneManagementSystem.Models.User>
-
-
-
+@if(Model.Count<0)
+    {
+        <p>No User Found</p>
+        
+    }else
+{
+    
+    <div class="content-wrapper">
+    <section class="content-header">
+        <div class="container-fluid">
+            <h1>Edit User</h1>
+        </div>
+    </section>
 <h2>Add Credit to Users</h2>
 
 @if (TempData["Success"] != null)
@@ -30,7 +40,7 @@
                 <td>@user.Email</td>
                 <td>@user.Phone</td>
                 <td>
-                    <form asp-action="AddCreditToUser" method="post" class="d-flex">
+                    <form action="AddCreditToUser" method="post" class="d-flex">
                         <input type="hidden" name="userId" value="@user.id" />
                         <input type="number" name="amount" class="form-control" step="0.01" placeholder="Enter amount" required />
                         <button type="submit" class="btn btn-success ms-2">Add</button>
@@ -40,3 +50,5 @@
         }
     </tbody>
 </table>
+</div>
+}

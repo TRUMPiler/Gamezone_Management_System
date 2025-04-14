@@ -189,7 +189,7 @@ namespace GameZoneManagementSystem.Controllers
                 }
                 con.Close();
             }
-            List<SelectListItem> subCategories = new List<SelectListItem>();
+            
             string subCatQuery = "SELECT ID, Sub_Category_Name FROM Tbl_Games_Sub_Category";
 
             using (SqlCommand cmd = new SqlCommand(subCatQuery, con))
@@ -199,17 +199,13 @@ namespace GameZoneManagementSystem.Controllers
                 {
                     while (rdr.Read())
                     {
-                        subCategories.Add(new SelectListItem
-                        {
-                            Value = rdr["ID"].ToString(),
-                            Text = rdr["Sub_Category_Name"].ToString()
-                        });
+                        
                     }
                 }
                 con.Close();
             }
 
-            ViewBag.SubCategories = subCategories;
+            
 
             return View(game);
         }
@@ -673,7 +669,7 @@ namespace GameZoneManagementSystem.Controllers
             using (SqlConnection con = new SqlConnection(this.configuration.GetConnectionString("DefaultConnection")))
             {
                 con.Open();
-                SqlCommand cmd = new SqlCommand("SELECT ID, Name, Email, Phone FROM Tbl_Users WHERE Status = 1", con);
+                SqlCommand cmd = new SqlCommand("SELECT ID, Name, Email, Phone FROM Tbl_Users WHERE Status = 1 and RoleID=2", con);
                 SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -688,7 +684,7 @@ namespace GameZoneManagementSystem.Controllers
                 }
             }
 
-            return View(users); // Make sure view is named AddCredit.cshtml
+            return View(users); 
         }
 
         [HttpPost]
@@ -697,15 +693,35 @@ namespace GameZoneManagementSystem.Controllers
             using (SqlConnection con = new SqlConnection(this.configuration.GetConnectionString("DefaultConnection")))
             {
                 con.Open();
-                SqlCommand cmd = new SqlCommand("INSERT INTO Tbl_Credits (Credits, UserID) VALUES (@credits, @userId)", con);
-                cmd.Parameters.AddWithValue("@credits", amount);
-                cmd.Parameters.AddWithValue("@userId", userId);
-                cmd.ExecuteNonQuery();
+
+                // Check if the user already has a credit record
+                SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM Tbl_Credits WHERE UserID = @userId", con);
+                checkCmd.Parameters.AddWithValue("@userId", userId);
+
+                int count = (int)checkCmd.ExecuteScalar();
+
+                if (count > 0)
+                {
+                    // Update existing credit
+                    SqlCommand updateCmd = new SqlCommand("UPDATE Tbl_Credits SET Credits = @credits+Credits WHERE UserID = @userId", con);
+                    updateCmd.Parameters.AddWithValue("@credits", amount);
+                    updateCmd.Parameters.AddWithValue("@userId", userId);
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    // Insert new credit
+                    SqlCommand insertCmd = new SqlCommand("INSERT INTO Tbl_Credits (Credits, UserID) VALUES (@credits, @userId)", con);
+                    insertCmd.Parameters.AddWithValue("@credits", amount);
+                    insertCmd.Parameters.AddWithValue("@userId", userId);
+                    insertCmd.ExecuteNonQuery();
+                }
             }
 
-            TempData["Success"] = "Credits added successfully!";
+            TempData["Success"] = "Credits added or updated successfully!";
             return RedirectToAction("AddCredit");
         }
+
 
 
         //------------------------------------------------------------------------------------
@@ -749,15 +765,15 @@ namespace GameZoneManagementSystem.Controllers
             List<Payment> payments = new List<Payment>();
 
             string query = @"
-SELECT 
-    p.ID, 
-    p.TransactionID, 
-    p.Type, 
-    p.UserID, 
-    p.Date, 
-    u.Name AS UserName, 
-    ISNULL(c.Credits, 0) AS Credits
-FROM Tbl_Payments p
+         SELECT 
+            p.ID, 
+            p.TransactionID, 
+            p.Type, 
+            p.UserID, 
+            p.Date, 
+            u.Name AS UserName, 
+            ISNULL(c.Credits, 0) AS Credits
+     FROM Tbl_Payments p
 INNER JOIN Tbl_Users u ON p.UserID = u.ID
 LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
             SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
@@ -864,14 +880,13 @@ LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
         [HttpPost]
         public IActionResult AddSlot(int GameID, int DayID, int TimeSlotID)
         {
-
-            int slotID;
+            int slotID = -1; // Initialize to an invalid value
 
             using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
 
-                // 1. Check if the slot record already exists in Tbl_Slot using DayID and TimeSlotID.
+                // 1. Check if the slot record already exists in Tbl_Slot for the given DayID and TimeSlotID.
                 string selectSlotQuery = "SELECT ID FROM Tbl_Slot WHERE DayID = @DayID AND TimeID = @TimeSlotID";
                 using (SqlCommand cmdSelectSlot = new SqlCommand(selectSlotQuery, con))
                 {
@@ -890,25 +905,54 @@ LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
                         {
                             cmdInsertSlot.Parameters.AddWithValue("@DayID", DayID);
                             cmdInsertSlot.Parameters.AddWithValue("@TimeSlotID", TimeSlotID);
-                            slotID = Convert.ToInt32(cmdInsertSlot.ExecuteScalar());
+                            object newSlotIdResult = cmdInsertSlot.ExecuteScalar();
+                            if (newSlotIdResult != null)
+                            {
+                                slotID = Convert.ToInt32(newSlotIdResult);
+                            }
                         }
                     }
                 }
 
-                // 3. Insert into Tbl_Game_Slot to link the game with the slot.
-                string insertGameSlotQuery = "INSERT INTO Tbl_Game_Slot (GameID, SlotID) VALUES (@GameID, @SlotID)";
-                using (SqlCommand cmdGameSlot = new SqlCommand(insertGameSlotQuery, con))
+                // 3. Check if the link between the Game and the Slot already exists in Tbl_Game_Slot.
+                if (slotID != -1) // Only proceed if we have a valid slotID
                 {
-                    cmdGameSlot.Parameters.AddWithValue("@GameID", GameID);
-                    cmdGameSlot.Parameters.AddWithValue("@SlotID", slotID);
-                    cmdGameSlot.ExecuteNonQuery();
+                    string selectGameSlotQuery = "SELECT ID FROM Tbl_Game_Slot WHERE GameID = @GameID AND SlotID = @SlotID";
+                    using (SqlCommand cmdSelectGameSlot = new SqlCommand(selectGameSlotQuery, con))
+                    {
+                        cmdSelectGameSlot.Parameters.AddWithValue("@GameID", GameID);
+                        cmdSelectGameSlot.Parameters.AddWithValue("@SlotID", slotID);
+                        object existingGameSlot = cmdSelectGameSlot.ExecuteScalar();
+
+                        if (existingGameSlot == null)
+                        {
+                            // 4. Insert into Tbl_Game_Slot to link the game with the slot if the link doesn't exist.
+                            string insertGameSlotQuery = "INSERT INTO Tbl_Game_Slot (GameID, SlotID) VALUES (@GameID, @SlotID)";
+                            using (SqlCommand cmdInsertGameSlot = new SqlCommand(insertGameSlotQuery, con))
+                            {
+                                cmdInsertGameSlot.Parameters.AddWithValue("@GameID", GameID);
+                                cmdInsertGameSlot.Parameters.AddWithValue("@SlotID", slotID);
+                                cmdInsertGameSlot.ExecuteNonQuery();
+                                con.Close();
+                                string script = "<script>alert('Slot added successfully!');window.location='/Admin/AddSlot';</script>";
+                                return Content(script, "text/html");
+                            }
+                        }
+                        else
+                        {
+                            con.Close();
+                            string script = "<script>alert('This slot is already added for this game.');window.location='/Admin/AddSlot';</script>";
+                            return Content(script, "text/html");
+                        }
+                    }
                 }
-
-                con.Close();
+                else
+                {
+                    con.Close();
+                    string script = "<script>alert('Error adding slot.');window.location='/Admin/AddSlot';</script>";
+                    return Content(script, "text/html");
+                }
             }
-
-            string script = "<script>alert('Slot added successfully!');window.location='/Admin/AddSlot';</script>";
-            return Content(script, "text/html");
         }
 
     }
