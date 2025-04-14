@@ -10,5 +10,6 @@ namespace GameZoneManagementSystem.Models
         public int userid { get; set; }
 
         public User User { get; set; }
+        public string UserName { get; set; }
     }
 }

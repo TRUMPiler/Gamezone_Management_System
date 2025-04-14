@@ -1,0 +1,63 @@
+﻿@model List<GameZoneManagementSystem.Models.GameSlotViewModel>
+@{
+    Layout = "AdminTable";
+    ViewBag.Title = "Game Slots";
+}
+
+<div class="content-wrapper">
+  <section class="content-header">
+    <div class="container-fluid">
+      <h1>Game Slots</h1>
+    </div>
+  </section>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="card">
+        <div class="card-body">
+          <table id="example1" class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Game Name</th>
+                <th>Day</th>
+                <th>Time Slot</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var slot in Model)
+              {
+                <tr>
+                  <td>@slot.Id</td>
+                  <td>@slot.GameName</td>
+                  <td>@slot.Day</td>
+                  <td>@slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")</td>
+                  <td>
+                    <button class="btn btn-info"
+                            onclick="location.href='@Url.Action("EditGameSlot","Admin", new { id = slot.Id })'">
+                      Edit
+                    </button>
+                    <button class="btn btn-danger"
+                            onclick="location.href='@Url.Action("DeleteGameSlot","Admin", new { id = slot.Id })'">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            <tfoot>
+              <tr>
+                <th>ID</th>
+                <th>Game Name</th>
+                <th>Day</th>
+                <th>Time Slot</th>
+                <th>Action</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

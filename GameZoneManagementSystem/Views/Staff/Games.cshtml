@@ -45,17 +45,17 @@
                                 <tbody>
                                     @foreach (Games game in Model)
                                     {
-                                            <tr>
-                                                <td>@game.Id</td>
-                                                <td>@game.Name</td>
-                                                <td>@game.Game_Description</td>
+                                        <tr>
+                                            <td>@game.Id</td>
+                                            <td>@game.Name</td>
+                                            <td>@game.Game_Description</td>
                                             <td>@game.SubCategory.Sub_Category_Name</td>
-                                                <td>
-                                                    <img src="@game.image" alt="Game Image" style="width: 80px; height: 80px;" />
-                                                </td>
-                                                <td>@game.price</td>
-                                                <td>
-                                                    <button type="button" class="btn btn-info" onclick="window.location='@Url.Action("EditGame","Admin", new { id = game.Id })'">Edit</button>
+                                            <td>
+                                                <img src="@game.image" alt="Game Image" style="width: 80px; height: 80px;" />
+                                            </td>
+                                            <td>@game.price</td>
+                                            <td>
+                                                <button type="button" class="btn btn-info" onclick="window.location='@Url.Action("EditGame","Admin", new { id = game.Id })'">Edit</button>
                                                 @if (game.Status) // 1 = Active
                                                 {
                                                     <button type="button" class="btn btn-danger" onclick="window.location.href='@Url.Action("DeactiveGame", "Admin", new { gameid = game.Id })'">Deactive</button>
@@ -64,8 +64,8 @@
                                                 {
                                                     <button type="button" class="btn btn-success" onclick="window.location.href='@Url.Action("ActiveGame", "Admin", new { gameid = game.Id })'">Active</button>
                                                 }
-                                                </td>
-                                            </tr>
+                                            </td>
+                                        </tr>
                                     }
                                 </tbody>
                                 <tfoot>

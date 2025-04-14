@@ -94,6 +94,9 @@ namespace GameZoneManagementSystem.Controllers
                 con.Close();
                 return games;
         }
+
+
+
         public List<Games_Sub_Category> GetSubCategoriesWithCategoryName()
         {
             SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
@@ -123,6 +126,52 @@ namespace GameZoneManagementSystem.Controllers
             }
             return subCategories;
         }
+
+
+        public IActionResult EditUser(int id = 0)
+        {
+            if (id == 0)
+            {
+                string script = $"<script>alert('User ID not Found');window.location='/Admin/Users';</script>";
+                return Content(script, "text/html");
+            }
+
+            User user = null;
+            string query = "SELECT * FROM Tbl_Users WHERE ID = @id";
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                command.Parameters.AddWithValue("@id", id);
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        user = new User
+                        {
+                            id = (int)reader["ID"],
+                            Name = reader["Name"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Phone = reader["Phone"].ToString(),
+                            Gender = char.Parse(reader["Gender"].ToString()),
+                            Dob = Convert.ToDateTime(reader["DOB"]),
+                            Status = (bool)reader["Status"],
+                            Role = Convert.ToInt32(reader["RoleID"])
+                        };
+                    }
+                }
+                con.Close();
+            }
+
+            if (user == null)
+            {
+                string script = $"<script>alert('User not found');window.location='/Admin/Users';</script>";
+                return Content(script, "text/html");
+            }
+
+            return View(user); // Pass user to the view
+        }
+
         [HttpPost]
         public IActionResult UpdateUser(User user)
         {
@@ -132,7 +181,7 @@ namespace GameZoneManagementSystem.Controllers
                 return Content("<script>alert('User ID is missing'); window.location.href='/Admin/Users';</script>", "text/html");
             }
 
-            string query = "UPDATE Tbl_Users SET Name=@Name, Email=@Email, Phone=@Phone, Gender=@Gender, DOB=@DOB, RoleID=@Role, Status=@Status WHERE ID=@ID";
+            string query = "UPDATE Tbl_Users SET Name=@Name, Email=@Email, Phone=@Phone, Gender=@Gender, Dob=@DOB, RoleID=@Role, Status=@Status WHERE id=@ID";
 
             using (SqlCommand command = new SqlCommand(query, con))
             {
@@ -149,9 +198,9 @@ namespace GameZoneManagementSystem.Controllers
                 int rowsAffected = command.ExecuteNonQuery();
                 con.Close();
 
-                if (rowsAffected > 0)
+                if (rowsAffected >= 1)
                 {
-                    return RedirectToAction("Users");
+                    return Content("<script>alert('Update done'); window.location.href='/Admin/Users';</script>", "text/html");
                 }
                 else
                 {
@@ -166,74 +215,58 @@ namespace GameZoneManagementSystem.Controllers
 
 
 
-        public IActionResult EditGame(int id)
-        {
-            Games game = new Games();
-            string query = "SELECT * FROM Tbl_Game WHERE ID = @id";
+        //    public IActionResult EditGame(int id)
+        //    {
+        //        Games game = new Games();
+        //        string query = "SELECT * FROM Tbl_Game WHERE ID = @id";
 
-            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
-            using (SqlCommand command = new SqlCommand(query, con))
-            {
-                command.Parameters.AddWithValue("@id", id);
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        game.Id = (int)reader["ID"];
-                        game.Name = reader["Game"].ToString();
-                        game.Game_Description = reader["Game_Description"].ToString();
-                        game.SubCatID = (int)reader["SubCatID"];
-                        game.image = reader["Image"].ToString();
-                    }
-                }
-                con.Close();
-            }
-            
-            string subCatQuery = "SELECT ID, Sub_Category_Name FROM Tbl_Games_Sub_Category";
+        //        SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+        //        using (SqlCommand command = new SqlCommand(query, con))
+        //        {
+        //            command.Parameters.AddWithValue("@id", id);
+        //            con.Open();
+        //            using (SqlDataReader reader = command.ExecuteReader())
+        //            {
+        //                if (reader.Read())
+        //                {
+        //                    game.Id = (int)reader["ID"];
+        //                    game.Name = reader["Game"].ToString();
+        //                    game.Game_Description = reader["Game_Description"].ToString();
+        //                    game.SubCatID = (int)reader["SubCatID"];
+        //                    game.image = reader["Image"].ToString();
+        //                }
+        //            }
+        //            con.Close();
+        //        }
 
-            using (SqlCommand cmd = new SqlCommand(subCatQuery, con))
-            {
-                con.Open();
-                using (SqlDataReader rdr = cmd.ExecuteReader())
-                {
-                    while (rdr.Read())
-                    {
-                        
-                    }
-                }
-                con.Close();
-            }
 
-            
+        //        string subCatQuery = "SELECT ID, Sub_Category_Name FROM Tbl_Games_Sub_Category";
+        //        using (SqlCommand cmd = new SqlCommand(subCatQuery, con))
+        //    {
+        //        con.Open();
+        //        using (SqlDataReader rdr = cmd.ExecuteReader())
+        //        {
+        //            while (rdr.Read())
+        //            {
+        //                subCategories.Add(new SubCategory
+        //                {
+        //                    ID = (int) rdr["ID"],
+        //                    Sub_Category_Name = rdr["Sub_Category_Name"].ToString()
+        //                });
+        //            }
+        //        }
+        //        con.Close();
+        //    }
+        //}
 
-            return View(game);
-        }
+        //var viewModel = new GameEditViewModel
+        //{
+        //    Game = game,
+        //    SubCategories = subCategories
+        //};
+        //        return View(game);
+        //    }
 
-        [HttpPost]
-        public IActionResult EditGame(Games updatedGame)
-        {
-            string connectionString = this.configuration.GetConnectionString("DefaultConnection");
-
-            using (SqlConnection con = new SqlConnection(connectionString))
-            {
-                string query = @"UPDATE Tbl_Game SET Game = @name,Game_Description = @desc, SubCatID = @subcat,Image = @img  WHERE ID = @id";
-
-                using (SqlCommand command = new SqlCommand(query, con))
-                {
-                    command.Parameters.AddWithValue("@name", updatedGame.Name);
-                    command.Parameters.AddWithValue("@desc", updatedGame.Game_Description);
-                    command.Parameters.AddWithValue("@subcat", updatedGame.SubCatID);
-                    command.Parameters.AddWithValue("@img", updatedGame.image);
-                    command.Parameters.AddWithValue("@id", updatedGame.Id);
-
-                    con.Open();
-                    command.ExecuteNonQuery(); 
-                }
-            }
-
-            return RedirectToAction("Games");
-        }
 
 
 
@@ -282,6 +315,10 @@ namespace GameZoneManagementSystem.Controllers
             string script = "<script>alert('Status Deactivation failed');window.location='/Admin/Index'</script>";
             return Content(script, "text/html");
         }
+
+
+
+
         public ActionResult Active(int userid = 0)
         {
             SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
@@ -300,6 +337,11 @@ namespace GameZoneManagementSystem.Controllers
             string script = "<script>alert('Status Activation failed');window.location='/Admin/Index'</script>";
             return Content(script, "text/html");
         }
+
+
+
+
+
         public ActionResult Index2()
         {
             return View();
@@ -314,143 +356,193 @@ namespace GameZoneManagementSystem.Controllers
 
             return View(games_Sub_Categories);
         }
-        [HttpPost]
-        public IActionResult addGames(Games game, IFormFile imageFile)
+
+
+
+        
+        public IActionResult EditGame(int id = 0)
         {
-            // Validate the uploaded file
-            if (imageFile == null || imageFile.Length == 0)
+            Games game = null;
+
+            if (id > 0)
             {
-                string script = "<script>alert('Please upload a valid image file.'+"+imageFile.FileName+");window.location='/Admin/AddGames';</script>";
-                return Content(script, "text/html");
+                using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+                {
+                    con.Open();
+                    string query = @"
+                        SELECT
+                            g.ID AS GameID,
+                            g.Game AS Name,
+                            g.Game_Description,
+                            g.SubCatID,
+                            sc.ID AS SubCategoryID,
+                            sc.Sub_Category_Name,
+                            gc.ID AS CategoryID,
+                            gc.CategoryName AS CategoryName,
+                            g.Image,
+                            p.Credits AS Price,
+                            g.Status
+                        FROM Tbl_Game g
+                        INNER JOIN Tbl_Price p ON g.ID = p.GameID
+                        INNER JOIN Tbl_Games_Sub_Category sc ON g.SubCatID = sc.ID
+                        INNER JOIN Tbl_Games_Category gc ON sc.CategoryID = gc.ID
+                        WHERE g.ID = @ID;";
+                    using (SqlCommand cmd = new SqlCommand(query, con))
+                    {
+                        cmd.Parameters.AddWithValue("@ID", id);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                game = new Games
+                                {
+                                    Id = (int)reader["GameID"],
+                                    Name = reader["Name"].ToString(),
+                                    Game_Description = reader["Game_Description"].ToString(),
+                                    SubCatID = (int)reader["SubCatID"],
+                                    SubCategory = new Games_Sub_Category
+                                    {
+                                        ID = (int)reader["SubCategoryID"],
+                                        Sub_Category_Name = reader["Sub_Category_Name"].ToString(),
+                                        CategoryID = (int)reader["CategoryID"],
+                                        CategoryName = reader["CategoryName"].ToString()
+                                    },
+                                    image = reader["Image"].ToString(),
+                                    price = Convert.ToDecimal(reader["Price"]),
+                                    Status = (bool)reader["Status"]
+                                };
+                            }
+                        }
+                    }
+                }
             }
+
+            if (game == null)
+            {
+                string script = "<script>alert('Game not found.');window.location='/Admin/Games'</script>";
+                return Content(script, "text/html");
+                
+            }
+
+            return View(game);
+        }
+
+        [HttpPost]
+        public IActionResult EditGame1(Games game, IFormFile imageFile)
+        {
+            // Validate the uploaded file (optional for edit, handle if no new file)
+            string filePath = game.image; // Default to existing image path
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                // File upload logic (similar to AddGames)
+                try
+                {
+                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                    filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        imageFile.CopyTo(stream);
+                    }
+
+                    game.image = "/uploads/" + uniqueFileName;
+
+                    // Optionally delete the old image file if it was updated
+                    if (!string.IsNullOrEmpty(game.image) && game.image != "/uploads/" + imageFile.FileName) // Basic check
+                    {
+                        string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", game.image.TrimStart('/'));
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            try
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Log error
+                                Console.WriteLine($"Error deleting old image: {ex.Message}");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    string script = $"<script>alert('File upload failed: {ex.Message}');window.location='/Admin/EditGame/{game.Id}';</script>";
+                    return Content(script, "text/html");
+                }
+            }
+
             if (game == null || string.IsNullOrEmpty(game.Name) || string.IsNullOrEmpty(game.Game_Description) || game.SubCatID == 0 || game.price == 0)
             {
                 TempData["Error"] = "All fields are required.";
-                return RedirectToAction("AddGames");
-            }
-            // File upload logic
-            string filePath = string.Empty;
-            try
-            {
-                // Define the folder to save uploaded files
-                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                    addGames(game,imageFile);
-                }
-
-                // Generate a unique file name to avoid conflicts
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
-                filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                // Save the file to the server
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    imageFile.CopyTo(stream);
-                }
-
-                // Save relative path for the database
-                game.image = "/uploads/" + uniqueFileName;
-            }
-            catch (Exception ex)
-            {
-                string script = $"<script>alert('File upload failed: {ex.Message}');window.location='/Admin/AddGames';</script>";
-                return Content(script, "text/html");
+                return RedirectToAction("EditGame", new { id = game.Id });
             }
 
-            // Insert data into the database
-            using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+            // Update data in the database
+            using (SqlConnection connection = new SqlConnection(this.configuration.GetRequiredSection("ConnectionStrings")["DefaultConnection"]))
             {
                 connection.Open();
                 SqlTransaction transaction = connection.BeginTransaction();
 
                 try
                 {
-                    // Insert data into Tbl_Games
-                    string gameQuery = @"INSERT INTO Tbl_Game (Game, Game_Description, SubCatID, Image) 
-                                 VALUES (@Game, @Game_Description, @SubCatID, @Image);
-                                 SELECT SCOPE_IDENTITY();";
-                    int gameId;
+                    // Update data in Tbl_Gamet
+                    string gameQuery = @"
+                        UPDATE Tbl_Game
+                        SET Game = @Game,
+                            Game_Description = @Game_Description,
+                            SubCatID = @SubCatID,
+                            Image = @Image,
+                            Status = @Status
+                        WHERE ID = @ID;";
                     using (SqlCommand gameCommand = new SqlCommand(gameQuery, connection, transaction))
                     {
+                        gameCommand.Parameters.AddWithValue("@ID", game.Id);
                         gameCommand.Parameters.AddWithValue("@Game", game.Name);
                         gameCommand.Parameters.AddWithValue("@Game_Description", game.Game_Description);
                         gameCommand.Parameters.AddWithValue("@SubCatID", game.SubCatID);
                         gameCommand.Parameters.AddWithValue("@Image", game.image);
-
-                        gameId = Convert.ToInt32(gameCommand.ExecuteScalar());
+                        gameCommand.Parameters.AddWithValue("@Status", game.Status);
+                        gameCommand.ExecuteNonQuery();
                     }
 
-                    // Insert price into Tbl_Price
-                    string priceQuery = @"INSERT INTO Tbl_Price (GameID, Credits) VALUES (@GameID, @Price)";
+                    // Update price in Tbl_Price
+                    string priceQuery = @"
+                        UPDATE Tbl_Price
+                        SET Credits = @Price
+                        WHERE GameID = @GameID;";
                     using (SqlCommand priceCommand = new SqlCommand(priceQuery, connection, transaction))
                     {
-                        priceCommand.Parameters.AddWithValue("@GameID", gameId);
+                        priceCommand.Parameters.AddWithValue("@GameID", game.Id);
                         priceCommand.Parameters.AddWithValue("@Price", game.price);
-
                         priceCommand.ExecuteNonQuery();
                     }
 
                     // Commit the transaction
                     transaction.Commit();
 
-                    string script = "<script>alert('Game added successfully!');window.location='/Admin/AddGames';</script>";
+                    string script = "<script>alert('Game updated successfully!');window.location='/Admin/Games';</script>";
                     return Content(script, "text/html");
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    string script = $"<script>alert('Failed to add game: {ex.Message}');window.location='/Admin/AddGames';</script>";
+                    string script = $"<script>alert('Failed to update game: {ex.Message}');window.location='/Admin/EditGame/{game.Id}';</script>";
                     return Content(script, "text/html");
                 }
             }
         }
-        public IActionResult EditUser(int id = 0)
-        {
-            if (id == 0)
-            {
-                string script = $"<script>alert('User ID not Found');window.location='/Admin/Users';</script>";
-                return Content(script, "text/html");
-            }
 
-            User user = null;
-            string query = "SELECT * FROM Tbl_Users WHERE ID = @id";
-            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
-            using (SqlCommand command = new SqlCommand(query, con))
-            {
-                command.Parameters.AddWithValue("@id", id);
-                con.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        user = new User
-                        {
-                            id = (int)reader["ID"],
-                            Name = reader["Name"].ToString(),
-                            Email = reader["Email"].ToString(),
-                            Phone = reader["Phone"].ToString(),
-                            Gender = char.Parse(reader["Gender"].ToString()),
-                            Dob = Convert.ToDateTime(reader["DOB"]),
-                            Status = (bool)reader["Status"],
-                            Role = Convert.ToInt32(reader["RoleID"])
-                        };
-                    }
-                }
-                con.Close();
-            }
 
-            if (user == null)
-            {
-                string script = $"<script>alert('User not found');window.location='/Admin/Users';</script>";
-                return Content(script, "text/html");
-            }
 
-            return View(user); // Pass user to the view
-        }
-
-        //---------------------------------------------------------------------------------------
+        ////---------------------------------------------------------------------------------------
 
         //public IActionResult register()
         //{
@@ -594,7 +686,7 @@ namespace GameZoneManagementSystem.Controllers
         {
             SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<User> users = new List<User>();
-            string query = "SELECT * FROM Tbl_Users";
+            string query = "SELECT * FROM Tbl_Users WHERE RoleID = 2";
             using (SqlCommand command = new SqlCommand(query, con))
             {
                 con.Open();
@@ -626,12 +718,113 @@ namespace GameZoneManagementSystem.Controllers
         }
 
 
+        //---------------------------------harsh-----------------------------
+
+
+
+        public IActionResult GameSlots()
+        {
+            var connString = configuration.GetConnectionString("DefaultConnection");
+            var list = new List<GameSlotViewModel>();
+
+            string sql = @"
+                SELECT 
+                    gs.ID,
+                    g.Game         AS GameName,
+                    d.Day          AS DayName,
+                    t.Start_Time   AS StartTime,
+                    t.End_Time     AS EndTime
+                FROM Tbl_Game_Slot gs
+                INNER JOIN Tbl_Game g 
+                    ON gs.GameID = g.ID
+                INNER JOIN Tbl_Slot s 
+                    ON gs.SlotID = s.ID
+                INNER JOIN Tbl_Day d 
+                    ON s.DayID = d.ID
+                INNER JOIN Tbl_Time t 
+                    ON s.TimeID = t.ID
+                ORDER BY gs.ID;
+            ";
+
+            using (var con = new SqlConnection(connString))
+            using (var cmd = new SqlCommand(sql, con))
+            {
+                con.Open();
+                using (var rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        list.Add(new GameSlotViewModel
+                        {
+                            Id = (int)rdr["ID"],
+                            GameName = (string)rdr["GameName"],
+                            Day = (string)rdr["DayName"],
+                            StartTime = (TimeSpan)rdr["StartTime"],
+                            EndTime = (TimeSpan)rdr["EndTime"]
+                        });
+                    }
+                }
+            }
+
+            if (!CheckRole())  // your existing role‐check
+                return RedirectToAction("Index", "Home");
+
+            // explicitly specify the view name to match your file:
+            return View("GameSlotssss", list);
+        }
+
+        private bool CheckRole()
+        {
+            // your existing logic
+            return true;
+        }
+
+
+        //---------------------------varun------------------------------------------
+        public IActionResult Empployees()
+        {
+            SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
+            List<User> users = new List<User>();
+            string query = "SELECT * FROM Tbl_Users WHERE RoleID = 3";
+            using (SqlCommand command = new SqlCommand(query, con))
+            {
+                con.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    ;
+                    while (reader.Read())
+                    {
+                        User user = new User();
+                        user.id = (int)reader["ID"];
+                        user.Name = (string)reader["Name"];
+                        user.Email = (string)reader["Email"];
+                        user.Phone = (string)reader["Phone"];
+                        user.Gender = Char.Parse(reader["Gender"].ToString());
+                        user.Dob = (System.DateTime)reader["DOB"];
+                        user.Status = (bool)reader["Status"];
+                        user.Role = (int)reader["RoleID"];
+                        users.Add(user);
+                    }
+
+                }
+            }
+            if (!CheckRole())
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            con.Close();
+            return View(users);
+        }
+        //---------------------------------------------------------------------------
 
         public IActionResult Credit()
         {
             SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Credit> credit = new List<Credit>();
-            string query = "SELECT * FROM Tbl_Credits ";
+            string query = @"SELECT c.ID, c.Credits, c.UserID, u.Name 
+                 FROM Tbl_Credits c 
+                 INNER JOIN Tbl_Users u ON c.UserID = u.ID";
+
             using (SqlCommand command = new SqlCommand(query, con))
             {
                 con.Open();
@@ -641,8 +834,9 @@ namespace GameZoneManagementSystem.Controllers
                     {
                         Credit credits = new Credit();
                         credits.id = (int)reader["ID"];
-                        credits.credits = Convert.ToDecimal(reader["Credits"]); // Safe conversion
+                        credits.credits = Convert.ToDecimal(reader["Credits"]);
                         credits.userid = (int)reader["UserID"];
+                        credits.UserName = reader["Name"].ToString(); // <-- Add this
                         credit.Add(credits);
                     }
                 }
@@ -733,9 +927,21 @@ namespace GameZoneManagementSystem.Controllers
         {
             SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]);
             List<Games> games = new List<Games>();
-            string query = "SELECT g.ID, g.Game, g.Game_Description, g.SubCatID, g.Image, p.Credits " +
-                           "FROM Tbl_Game g " +
-                           "LEFT JOIN Tbl_Price p ON g.ID = p.GameID";
+            string query = @"
+  SELECT 
+    g.ID, 
+    g.Game, 
+    g.Game_Description, 
+    g.SubCatID,
+    s.Sub_Category_Name,
+    g.Image, 
+    p.Credits,
+g.Status
+  FROM Tbl_Game g
+  INNER JOIN Tbl_Games_Sub_Category s 
+    ON g.SubCatID = s.ID
+  LEFT JOIN Tbl_Price p 
+    ON g.ID = p.GameID";
 
             using (SqlCommand command = new SqlCommand(query, con))
             {
@@ -746,12 +952,20 @@ namespace GameZoneManagementSystem.Controllers
                     {
                         Games game = new Games();
                         game.Id = (int)reader["ID"];
-                        game.Name= (string)reader["Game"];
+                        game.Name = (string)reader["Game"];
                         game.Game_Description = (string)reader["Game_Description"];
                         game.SubCatID = (int)reader["SubCatID"];
+                        game.SubCategory = new Games_Sub_Category
+                        {
+                            ID = (int)reader["SubCatID"],
+                            Sub_Category_Name = (string)reader["Sub_Category_Name"],
+                        };
+                        //game.SubCategory.Sub_Category_Name = reader["Sub_Category_Name"].ToString();    // ← here
                         game.image = (string)reader["Image"];
-                        game.price = reader["Credits"] != DBNull.Value ? (decimal)reader["Credits"] : 0;
-
+                        game.price = reader["Credits"] != DBNull.Value
+                                                   ? (decimal)reader["Credits"]
+                                                   : 0m;
+                        game.Status = (bool)reader["Status"];
                         games.Add(game);
                     }
                 }
@@ -759,6 +973,41 @@ namespace GameZoneManagementSystem.Controllers
             con.Close();
             return View(games);
         }
+
+
+
+        //-------------------varun--------------------
+        public ActionResult ActiveGame(int gameid)
+        {
+            
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+            {
+                string query = "UPDATE Tbl_Game SET Status = 1 WHERE Id = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", gameid);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            return RedirectToAction("Games"); // Redirect to your listing page
+        }
+
+        public ActionResult DeactiveGame(int gameid)
+        {
+
+            using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+            {
+                string query = "UPDATE Tbl_Game SET Status = 0 WHERE Id = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@id", gameid);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            return RedirectToAction("Games"); // Redirect to your listing page
+        }
+//--------------------------------------------------------------------------------------------------------------
+
 
         public IActionResult Payments()
         {
@@ -876,7 +1125,98 @@ LEFT JOIN Tbl_Credits c ON p.UserID = c.UserID";
 
             return View(viewModel);
         }
+        [HttpPost]
+        public IActionResult addGames(Games game, IFormFile imageFile)
+        {
+            // Validate the uploaded file
+            if (imageFile == null || imageFile.Length == 0)
+            {
+                string script = "<script>alert('Please upload a valid image file.'+" + imageFile.FileName + ");window.location='/Admin/AddGames';</script>";
+                return Content(script, "text/html");
+            }
+            if (game == null || string.IsNullOrEmpty(game.Name) || string.IsNullOrEmpty(game.Game_Description) || game.SubCatID == 0 || game.price == 0)
+            {
+                TempData["Error"] = "All fields are required.";
+                return RedirectToAction("AddGames");
+            }
+            // File upload logic
+            string filePath = string.Empty;
+            try
+            {
+                // Define the folder to save uploaded files
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                    addGames(game, imageFile);
+                }
 
+                // Generate a unique file name to avoid conflicts
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + imageFile.FileName;
+                filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Save the file to the server
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    imageFile.CopyTo(stream);
+                }
+
+                // Save relative path for the database
+                game.image = "/uploads/" + uniqueFileName;
+            }
+            catch (Exception ex)
+            {
+                string script = $"<script>alert('File upload failed: {ex.Message}');window.location='/Admin/AddGames';</script>";
+                return Content(script, "text/html");
+            }
+
+            // Insert data into the database
+            using (SqlConnection connection = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
+            {
+                connection.Open();
+                SqlTransaction transaction = connection.BeginTransaction();
+
+                try
+                {
+                    // Insert data into Tbl_Games
+                    string gameQuery = @"INSERT INTO Tbl_Game (Game, Game_Description, SubCatID, Image) 
+                                 VALUES (@Game, @Game_Description, @SubCatID, @Image);
+                                 SELECT SCOPE_IDENTITY();";
+                    int gameId;
+                    using (SqlCommand gameCommand = new SqlCommand(gameQuery, connection, transaction))
+                    {
+                        gameCommand.Parameters.AddWithValue("@Game", game.Name);
+                        gameCommand.Parameters.AddWithValue("@Game_Description", game.Game_Description);
+                        gameCommand.Parameters.AddWithValue("@SubCatID", game.SubCatID);
+                        gameCommand.Parameters.AddWithValue("@Image", game.image);
+
+                        gameId = Convert.ToInt32(gameCommand.ExecuteScalar());
+                    }
+
+                    // Insert price into Tbl_Price
+                    string priceQuery = @"INSERT INTO Tbl_Price (GameID, Credits) VALUES (@GameID, @Price)";
+                    using (SqlCommand priceCommand = new SqlCommand(priceQuery, connection, transaction))
+                    {
+                        priceCommand.Parameters.AddWithValue("@GameID", gameId);
+                        priceCommand.Parameters.AddWithValue("@Price", game.price);
+
+                        priceCommand.ExecuteNonQuery();
+                    }
+
+                    // Commit the transaction
+                    transaction.Commit();
+
+                    string script = "<script>alert('Game added successfully!');window.location='/Admin/AddGames';</script>";
+                    return Content(script, "text/html");
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    string script = $"<script>alert('Failed to add game: {ex.Message}');window.location='/Admin/AddGames';</script>";
+                    return Content(script, "text/html");
+                }
+            }
+        }
         [HttpPost]
         public IActionResult AddSlot(int GameID, int DayID, int TimeSlotID)
         {

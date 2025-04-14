@@ -1,9 +1,13 @@
+using GameZoneManagementSystem.Controllers;
+using GameZoneManagementSystem.Controllersd;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-
+builder.Services.AddScoped<CreditController>();
+builder.Services.AddScoped<CustomerController>(); // Ensure CustomerController is also registered
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDistributedMemoryCache(); // Required for session storage
 builder.Services.AddSession(options =>

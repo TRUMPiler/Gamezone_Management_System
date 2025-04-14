@@ -14,23 +14,23 @@
             <h1>Credits</h1>
         </div>
     </section>
-<section class="content">
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
-                <table id="example1" class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Credits</th>
-                            <th>User Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <table id="example1" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Credits</th>
+                                <th>User Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @foreach (var credit in Model)
                             {
-                            
+
 
                                 <tr>
                                     <td>@credit.id</td>
@@ -49,17 +49,17 @@
                                     </td>
                                 </tr>
                             }
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>ID</th>
-                            <th>Credits</th>
-                            <th>User Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>Credits</th>
+                                <th>User Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>

@@ -1,0 +1,138 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "AdminTable";
+    ViewBag.Title = "Users";
+}
+@using GameZoneManagementSystem.Models;
+ @model List<GameZoneManagementSystem.Models.User>
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Empployees</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">DataTables</li>
+                    </ol>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+
+                    <div class="card">
+                        @* <div class="card-header"> *@
+                        @*   <h3 class="card-title">DataTable with default features</h3> *@
+                        @* </div> *@
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            ID
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>Email</th>
+                                        <th>Date of birth</th>
+                                        <th>PhoneNo</th>
+                                        <th>Gender </th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (User user in Model)
+                                    {
+                                        <tr>
+                                            <td>@user.id</td>
+                                            <td>@user.Name</td>
+                                            <td>@user.Email</td>
+                                            <td>@user.Dob</td>
+                                            <td>@user.Phone</td>
+                                            <td>@user.Gender</td>
+                                            @if (user.Role == 1)
+                                            {
+                                                <td>Admin</td>
+                                            }
+                                            @if (user.Role == 2)
+                                            {
+                                                <td>Customer</td>
+                                            }
+                                            @if (user.Role == 3)
+                                            {
+                                                <td>Employee</td>
+                                            }
+                                            @if (user.Role == 4)
+                                            {
+                                                <td>Manager</td>
+                                            }
+
+
+                                            @if (user.Status == true)
+                                            {
+                                                <td>Active</td>
+                                            }
+                                            else
+                                            {
+                                                <td>Deactive</td>
+                                            }
+                                            <td>
+                                                <button type="button" class="btn btn-info" onclick="window.location.href='@Url.Action("EditUser", "Admin", new { id = user.id })'">Edit User</button>
+                                                @if (user.Status == true)
+                                                {
+                                                    <button type="button" class="btn btn-danger" onclick="window.location.href='@Url.Action("Deactive", "Admin", new { userid = user.id })'">Deactive</button>
+                                                    @* <button class="btn btn-danger" onclick="window.location.href='@Url.Action("Delete", "Admin", new { userId = item.UserID })'">Deactive</button> *@
+                                                }
+                                                else
+                                                {
+                                                    <button type="button" class="btn btn-success" onclick="window.location.href='@Url.Action("Active", "Admin", new { userid = user.id })'">Active</button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>
+                                            ID
+                                        </th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>Email</th>
+                                        <th>Date of birth</th>
+                                        <th>PhoneNo</th>
+                                        <th>Gender </th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+    </section>
+

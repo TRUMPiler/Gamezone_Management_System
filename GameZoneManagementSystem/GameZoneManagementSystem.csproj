@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <Compile Remove="Controllers\StaffConteroller.cs" />
+    <Compile Remove="Models\Payment .cs" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Remove="Views\Customer\ookSlot.cshtml" />
+    <Content Remove="Views\Staff\Users..cshtml" />
     <Content Remove="wwwroot\css\NewFile.txt" />
   </ItemGroup>
 
@@ -26,6 +28,10 @@
     <None Remove="Views\Home\NewFile.txt" />
     <None Remove="Views\Shared\NewFile.txt" />
     <None Remove="Views\Shared\S" />
+    <None Remove="Views\Staff\NewFile.txt" />
+    <None Remove="Views\Staff\NewFile1.txt" />
+    <None Remove="Views\Staff\NewFile2.txt" />
+    <None Remove="Views\Staff\NewFile3.txt" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,9 +23,11 @@ namespace GameZoneManagementSystem.Controllersd
             return false;
         }
         IConfiguration configuration;
-        public CustomerController(IConfiguration config)
+        private readonly CreditController _creditController; // Inject CreditController
+        public CustomerController(IConfiguration config,CreditController credit)
         {
             configuration = config;
+            _creditController = credit;
         }
         
         String otp = "";
@@ -216,6 +218,8 @@ namespace GameZoneManagementSystem.Controllersd
         //            }
         //        }
         //}         
+
+
         public IActionResult BookSlotConfirmation(int GameID, string Day, string TimeRange, DateTime? bookingDate)
         {
             if (!isLoggedin())
@@ -240,7 +244,11 @@ namespace GameZoneManagementSystem.Controllersd
             using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
-                string gameQuery = "SELECT ID, Game FROM Tbl_Game WHERE ID = @GameID";
+                string gameQuery = @"
+                SELECT g.ID, g.Game, p.Credits AS Price
+                FROM Tbl_Game g
+                INNER JOIN Tbl_Price p ON g.ID = p.GameID
+                WHERE g.ID = @GameID;";
                 using (SqlCommand cmd = new SqlCommand(gameQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@GameID", GameID);
@@ -252,6 +260,7 @@ namespace GameZoneManagementSystem.Controllersd
                             ViewBag.Day = Day;
                             ViewBag.TimeRange = TimeRange;
                             ViewBag.BookingDate = bookingDate.Value.ToShortDateString();
+                            ViewBag.GamePrice = Convert.ToInt32(reader["Price"]); // Pass the game price to the confirmation view
                             return View();
                         }
                     }
@@ -277,79 +286,104 @@ namespace GameZoneManagementSystem.Controllersd
             DateTime bookingDate = DateTime.Parse(HttpContext.Session.GetString("BookingDate"));
 
             int? gameSlotIdToBook = null;
+            int gamePrice = 0;
 
             using (SqlConnection con = new SqlConnection(this.configuration.GetSection("ConnectionStrings")["DefaultConnection"]))
             {
                 con.Open();
 
-                // 1. Find the corresponding GameSlotID
-                string findGameSlotIdQuery = @"
-                SELECT gs.ID
+                // 1. Find the corresponding GameSlotID and Game Price
+                string findGameSlotAndPriceQuery = @"
+                SELECT gs.ID, p.Credits AS Price
                 FROM Tbl_Game g
                 INNER JOIN Tbl_Game_Slot gs ON g.ID = gs.GameID
                 INNER JOIN Tbl_Slot s ON gs.SlotID = s.ID
                 INNER JOIN Tbl_Day d ON s.DayID = d.ID
                 INNER JOIN Tbl_Time t ON s.TimeID = t.ID
+                INNER JOIN Tbl_Price p ON g.ID = p.GameID
                 WHERE g.ID = @GameID
                   AND d.Day = @Day
                   AND FORMAT(t.Start_Time, 'hh\:mm') + '-' + FORMAT(t.End_Time, 'hh\:mm') = @TimeRange;";
 
-                using (SqlCommand cmdFindGameSlotId = new SqlCommand(findGameSlotIdQuery, con))
+                using (SqlCommand cmdFindGameSlotAndPrice = new SqlCommand(findGameSlotAndPriceQuery, con))
                 {
-                    cmdFindGameSlotId.Parameters.AddWithValue("@GameID", gameId);
-                    cmdFindGameSlotId.Parameters.AddWithValue("@Day", day);
-                    cmdFindGameSlotId.Parameters.AddWithValue("@TimeRange", timeRange);
+                    cmdFindGameSlotAndPrice.Parameters.AddWithValue("@GameID", gameId);
+                    cmdFindGameSlotAndPrice.Parameters.AddWithValue("@Day", day);
+                    cmdFindGameSlotAndPrice.Parameters.AddWithValue("@TimeRange", timeRange);
 
-                    object result = cmdFindGameSlotId.ExecuteScalar();
-                    if (result != null)
+                    using (SqlDataReader reader = cmdFindGameSlotAndPrice.ExecuteReader())
                     {
-                        gameSlotIdToBook = Convert.ToInt32(result);
-                    }
-                    else
-                    {
-                        string script = "<script>alert('Selected slot is not valid')</script>" +
-                                "<script>window.location='/Customer/Games'</script>";
-                        return Content(script, "text/html");
-                       
+                        if (reader.Read())
+                        {
+                            gameSlotIdToBook = Convert.ToInt32(reader["ID"]);
+                            gamePrice = Convert.ToInt32(reader["Price"]);
+                        }
+                        else
+                        {
+                            string script = "<script>alert('Selected slot is not valid')</script>" +
+                                            "<script>window.location='/Customer/Games'</script>";
+                            return Content(script, "text/html");
+                        }
                     }
                 }
 
                 if (gameSlotIdToBook.HasValue)
                 {
-                    // 2. Check if the slot is already booked by the current user on the selected date
-                    string checkBookingQuery = @"
+                    // 2. Check if the slot is already booked by ANY user on the selected date
+                    string checkAvailabilityQuery = @"
                     SELECT COUNT(*)
                     FROM Tbl_Game_Slot_Booking
                     WHERE Game_SlotID = @GameSlotID
-                      AND UserID = @UserID
                       AND Date = @BookingDate;";
-                    using (SqlCommand cmdCheckBooking = new SqlCommand(checkBookingQuery, con))
+                    using (SqlCommand cmdCheckAvailability = new SqlCommand(checkAvailabilityQuery, con))
                     {
-                        cmdCheckBooking.Parameters.AddWithValue("@GameSlotID", gameSlotIdToBook.Value);
-                        cmdCheckBooking.Parameters.AddWithValue("@UserID", userId);
-                        cmdCheckBooking.Parameters.AddWithValue("@BookingDate", bookingDate);
-                        int bookingCount = (int)cmdCheckBooking.ExecuteScalar();
-                        if (bookingCount > 0)
+                        cmdCheckAvailability.Parameters.AddWithValue("@GameSlotID", gameSlotIdToBook.Value);
+                        cmdCheckAvailability.Parameters.AddWithValue("@BookingDate", bookingDate);
+                        int availabilityCount = (int)cmdCheckAvailability.ExecuteScalar();
+                        if (availabilityCount > 0)
                         {
-                            string script = "<script>alert('You have already booked this slot for the selected date.');window.location='/Customer/Games'</script>";
+                            string script = "<script>alert('This slot is already booked by another user for the selected date.');window.location='/Customer/Games'</script>";
                             return Content(script, "text/html");
-                            
                         }
                     }
 
-                    // 3. Insert the booking record with the date
-                    string bookSlotQuery = "INSERT INTO Tbl_Game_Slot_Booking (Game_SlotID, UserID, Date) VALUES (@GameSlotID, @UserID, @BookingDate)";
-                    using (SqlCommand cmdBookSlot = new SqlCommand(bookSlotQuery, con))
+                    // 3. Fetch user's credit information
+                    Credit userCredits = _creditController.FetchDetails(userId.ToString());
+
+                    // 4. Check if the user's credit entry exists
+                    if (userCredits == null || userCredits.userid == 0)
                     {
-                        cmdBookSlot.Parameters.AddWithValue("@GameSlotID", gameSlotIdToBook.Value);
-                        cmdBookSlot.Parameters.AddWithValue("@UserID", userId);
-                        cmdBookSlot.Parameters.AddWithValue("@BookingDate", bookingDate);
-                        cmdBookSlot.ExecuteNonQuery();
-                        string message= "Slot booked successfully for " + bookingDate.ToShortDateString() + "!";
-                        string script = "<script>alert('"+message+"');window.location='/Customer/Games'</script>";
+                        string script = "<script>alert('You do not have any credits. Please add credits to your account.');window.location='/Credit/PaymentPage'</script>";
                         return Content(script, "text/html");
-                        //TempData["SuccessMessage"] = 
-                        //return RedirectToAction("Games");
+                    }
+
+                    // 5. Check if the user has enough credits
+                    if (userCredits.credits < gamePrice)
+                    {
+                        string script = $"<script>alert('Insufficient credits to book this slot. Credits needed: {gamePrice}');window.location='/Credit/PaymentPage'</script>";
+                        return Content(script, "text/html");
+                    }
+
+                    // 6. Reduce the user's credits
+                    if (_creditController.ReduceAmout(gamePrice, userId))
+                    {
+                        // 7. Insert the booking record with the date and UserID
+                        string bookSlotQuery = "INSERT INTO Tbl_Game_Slot_Booking (Game_SlotID, UserID, Date) VALUES (@GameSlotID, @UserID, @BookingDate)";
+                        using (SqlCommand cmdBookSlot = new SqlCommand(bookSlotQuery, con))
+                        {
+                            cmdBookSlot.Parameters.AddWithValue("@GameSlotID", gameSlotIdToBook.Value);
+                            cmdBookSlot.Parameters.AddWithValue("@UserID", userId);
+                            cmdBookSlot.Parameters.AddWithValue("@BookingDate", bookingDate);
+                            cmdBookSlot.ExecuteNonQuery();
+                            string message = "Slot booked successfully for " + bookingDate.ToShortDateString() + "!";
+                            string script = $"<script>alert('{message}');window.location='/Customer/Games'</script>";
+                            return Content(script, "text/html");
+                        }
+                    }
+                    else
+                    {
+                        string script = "<script>alert('Failed to reduce credits. Please try again.');window.location='/Customer/Games'</script>";
+                        return Content(script, "text/html");
                     }
                 }
             }

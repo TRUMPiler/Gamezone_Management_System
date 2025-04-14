@@ -27,6 +27,7 @@
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Credits
 		Credits SMALLMONEY NOT NULL, -- Credit amount
 		UserID INT NOT NULL, -- User ID
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Credit_User FOREIGN KEY (UserID) REFERENCES Tbl_Users(ID) -- FK to Tbl_Users
 	);
 
@@ -36,29 +37,34 @@
 		Type BIT NOT NULL, -- Payment type
 		UserID INT NOT NULL, -- User ID
 		Date date,
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Payment_User FOREIGN KEY (UserID) REFERENCES Tbl_Users(ID) -- FK to Tbl_Users
 	);
 
 	CREATE TABLE Tbl_Area (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Area
-		Area VARCHAR(20) NOT NULL -- Name of the area
+		Area VARCHAR(20) NOT NULL, -- Name of the area
+		Status bit Default(1)
 	);
 
 	CREATE TABLE Tbl_Employees (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Employees
 		UserID INT NOT NULL, -- User ID
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Employees_User FOREIGN KEY (UserID) REFERENCES Tbl_Users(ID) -- FK to Tbl_Users
 	);
 
 	CREATE TABLE Tbl_Games_Category (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Game Categories
-		CategoryName VARCHAR(12) NOT NULL -- Name of the category
+		CategoryName VARCHAR(12) NOT NULL, -- Name of the category
+		Status bit Default(1)
 	);
 
 	CREATE TABLE Tbl_Games_Sub_Category (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Subcategories
 		Sub_Category_Name VARCHAR(12) NOT NULL, -- Name of the subcategory
 		CategoryID INT NOT NULL, -- FK to Tbl_Games_Category
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Games_Sub_Category_Category FOREIGN KEY (CategoryID) REFERENCES Tbl_Games_Category(ID)
 	);
 
@@ -74,13 +80,15 @@
 
 	CREATE TABLE Tbl_Day (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Days
-		Day VARCHAR(10) NOT NULL -- Day name
+		Day VARCHAR(10) NOT NULL, -- Day name
+		Status bit Default(1)
 	);
 
 	CREATE TABLE Tbl_Time (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Time slots
 		Start_Time TIME NOT NULL, -- Start time
-		End_Time TIME NOT NULL -- End time
+		End_Time TIME NOT NULL, -- End time
+		Status bit Default(1)
 	);
 
 	CREATE TABLE Tbl_Slot (
@@ -94,7 +102,8 @@
 	CREATE TABLE Tbl_Game_Slot (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Game Slots
 		GameID INT NOT NULL, -- FK to Tbl_Game
-		SlotID INT NOT NULL, -- FK to Tbl_Slot
+		SlotID INT NOT NULL,-- FK to Tbl_Slot
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Game_Slot_Game FOREIGN KEY (GameID) REFERENCES Tbl_Game(ID),
 		CONSTRAINT FK_Tbl_Game_Slot_Slot FOREIGN KEY (SlotID) REFERENCES Tbl_Slot(ID)
 	);
@@ -111,6 +120,7 @@
 		Game_SlotID INT NOT NULL, -- FK to Tbl_Game_Slot
 		UserID INT NOT NULL, -- FK to Tbl_Users
 		Date date,
+		Status bit Default(1),
 		CONSTRAINT FK_Tbl_Game_Slot_Booking_Game_Slot FOREIGN KEY (Game_SlotID) REFERENCES Tbl_Game_Slot(ID),
 		CONSTRAINT FK_Tbl_Game_Slot_Booking_User FOREIGN KEY (UserID) REFERENCES Tbl_Users(ID)
 	);
@@ -118,7 +128,8 @@
 	CREATE TABLE Tbl_Game_Played (
 		ID INT IDENTITY(1,1) PRIMARY KEY, -- Auto-increment ID for Played Games
 		GameID INT NOT NULL, -- FK to Tbl_Game
-		UserID INT NOT NULL, -- FK to Tbl_Users
+		UserID INT NOT NULL,
+		Status bit Default(1),-- FK to Tbl_Users
 		CONSTRAINT FK_Tbl_Game_Played_Game FOREIGN KEY (GameID) REFERENCES Tbl_Game(ID),
 		CONSTRAINT FK_Tbl_Game_Played_User FOREIGN KEY (UserID) REFERENCES Tbl_Users(ID)
 	);
