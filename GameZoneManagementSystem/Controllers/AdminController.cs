@@ -766,19 +766,13 @@ namespace GameZoneManagementSystem.Controllers
                 }
             }
 
-            if (!CheckRole())  // your existing role‐check
-                return RedirectToAction("Index", "Home");
+           
 
             // explicitly specify the view name to match your file:
             return View("GameSlotssss", list);
         }
 
-        private bool CheckRole()
-        {
-            // your existing logic
-            return true;
-        }
-
+    
 
         //---------------------------varun------------------------------------------
         public IActionResult Empployees()
